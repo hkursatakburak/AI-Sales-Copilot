@@ -1,16 +1,19 @@
 """/analyze endpoint'inin entegrasyon testleri.
 
-Burada API sözleşmesini (request/response biçimi, hata davranışı) doğrularız.
-DI override örneği de gösterilir: route'un servisi nasıl sahteyle değiştirilir.
+API sözleşmesini (request/response biçimi, hata davranışı) doğrularız. Gerçek
+ağ KULLANILMAZ: `get_analysis_service` bağımlılığı, sahte scraper'lı bir
+servisle override edilir.
 """
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.api.dependencies import get_analysis_service
+from app.application.scraping_analysis_service import ScrapingAnalysisService
 from app.domain.interfaces import AnalysisService
 from app.domain.models import (
     AnalysisMeta,
@@ -20,21 +23,44 @@ from app.domain.models import (
     ScoreReason,
 )
 from app.main import create_app
+from tests.factories import FakeScraper, make_scraped_content
 
 
-def test_analyze_happy_path(client: TestClient) -> None:
-    response = client.post("/analyze", json={"url": "https://www.acme-corp.com"})
+@pytest.fixture
+def client_with_fake_scraper(settings) -> TestClient:
+    """Sahte scraper'lı gerçek `ScrapingAnalysisService` enjekte eder."""
+    content = make_scraped_content(
+        url="https://www.acme-corp.com",
+        site_name="Acme Corp",
+        text="Acme bulut çözümleri sunar. " * 30,
+        renderer="static",
+    )
+    service = ScrapingAnalysisService(FakeScraper(content))  # robots_checker yok
+
+    app = create_app(settings=settings)
+    app.dependency_overrides[get_analysis_service] = lambda: service
+    return TestClient(app)
+
+
+def test_analyze_happy_path(client_with_fake_scraper: TestClient) -> None:
+    response = client_with_fake_scraper.post(
+        "/analyze", json={"url": "https://www.acme-corp.com"}
+    )
 
     assert response.status_code == 200
     body = response.json()
 
-    # Sözleşmedeki tüm alanlar mevcut mu?
+    # Pydantic HttpUrl URL'yi normalize eder (sona '/' ekler).
     assert body["url"] == "https://www.acme-corp.com/"
     assert body["company_name"] == "Acme Corp"
-    assert isinstance(body["pain_points"], list) and body["pain_points"]
     assert 0 <= body["lead_score"]["value"] <= 100
-    assert body["lead_score"]["reasons"]  # açıklanabilirlik
-    assert body["meta"]["is_stub"] is True
+    assert body["lead_score"]["reasons"]
+
+    # Sprint 2: gerçek scraping çıktısı yanıtта olmalı.
+    assert body["scraped"] is not None
+    assert body["scraped"]["renderer"] == "static"
+    assert body["scraped"]["word_count"] > 0
+    assert body["scraped"]["content_preview"]
 
 
 def test_analyze_rejects_invalid_url(client: TestClient) -> None:
@@ -52,7 +78,7 @@ def test_analyze_requires_url_field(client: TestClient) -> None:
 
 
 def test_analyze_uses_injected_service(settings) -> None:
-    """DI override: route'a sahte bir servis enjekte edilebildiğini kanıtlar."""
+    """DI override: route'a tamamen sahte bir servis enjekte edilebilir."""
 
     class FakeService(AnalysisService):
         async def analyze(self, url: str) -> CompanyAnalysis:
@@ -86,3 +112,4 @@ def test_analyze_uses_injected_service(settings) -> None:
     assert body["company_name"] == "Sahte A.Ş."
     assert body["lead_score"]["value"] == 95
     assert body["meta"]["is_stub"] is False
+    assert body["scraped"] is None  # bu sahte serviste scraping yok

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from app.domain.models import CompanyAnalysis
+from app.domain.models import CompanyAnalysis, ScrapedContent
 
 
 class AnalysisService(ABC):
@@ -25,4 +25,18 @@ class AnalysisService(ABC):
         G/Ç-yoğun (I/O-bound) olacak; baştan async tasarlamak ileride
         senkron->async geçişinin acısını önler.
         """
+        raise NotImplementedError
+
+
+class WebScraper(ABC):
+    """Bir URL'yi temizlenmiş `ScrapedContent`'e dönüştüren scraper sözleşmesi.
+
+    Bu arayüz sayesinde üst katman, içeriğin nasıl çekildiğini (statik istek,
+    tarayıcı render'ı veya ikisinin melezi) bilmez. Strategy deseni: aynı
+    sözleşmeyi farklı implementasyonlar (BeautifulSoup / Playwright / Hybrid)
+    karşılar; biri diğeriyle sorunsuz değiştirilebilir.
+    """
+
+    @abstractmethod
+    async def scrape(self, url: str) -> ScrapedContent:
         raise NotImplementedError

@@ -61,6 +61,27 @@ class AnalysisMeta:
 
 
 @dataclass(frozen=True, slots=True)
+class ScrapedContent:
+    """Bir web sayfasından çekilip temizlenmiş ham içerik.
+
+    Bu, LLM ve lead scoring'in (Sprint 3) üzerinde çalışacağı "hammaddedir".
+    `renderer` alanı, içeriğin nasıl elde edildiğini söyler: statik HTTP ile mi
+    ("static") yoksa tarayıcı render'ı ile mi ("dynamic"). Bu, hem hata ayıklama
+    hem de demo'da hangi yolun kullanıldığını göstermek için değerlidir.
+    """
+
+    url: str
+    title: str | None
+    site_name: str | None
+    meta_description: str | None
+    text: str  # temizlenmiş, düz metin (reklam/menü/script atılmış)
+    headings: tuple[str, ...]
+    word_count: int
+    renderer: str  # "static" | "dynamic"
+    fetched_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
 class CompanyAnalysis:
     """Bir şirket için üretilen eksiksiz analiz sonucu.
 
@@ -77,3 +98,5 @@ class CompanyAnalysis:
     cold_email: str
     pitch: str
     meta: AnalysisMeta
+    # Sprint 2'den itibaren doldurulan gerçek scraping çıktısı.
+    scraped: ScrapedContent | None = None

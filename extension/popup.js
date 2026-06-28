@@ -16,6 +16,9 @@ const els = {
   result: document.getElementById("result"),
   stubBanner: document.getElementById("stub-banner"),
   companyName: document.getElementById("company-name"),
+  scrapeBadge: document.getElementById("scrape-badge"),
+  scrapeMeta: document.getElementById("scrape-meta"),
+  contentPreview: document.getElementById("content-preview"),
   leadScore: document.getElementById("lead-score"),
   scoreReasons: document.getElementById("score-reasons"),
   summary: document.getElementById("summary"),
@@ -102,9 +105,23 @@ function renderList(container, items) {
   }
 }
 
+function renderScraped(scraped) {
+  if (!scraped) {
+    els.scrapeBadge.textContent = "";
+    els.scrapeMeta.textContent = "İçerik çekilmedi.";
+    els.contentPreview.textContent = "";
+    return;
+  }
+  els.scrapeBadge.textContent = scraped.renderer; // static | dynamic
+  els.scrapeBadge.className = "renderer-badge " + scraped.renderer;
+  els.scrapeMeta.textContent = `${scraped.word_count} kelime çekildi`;
+  els.contentPreview.textContent = scraped.content_preview || "";
+}
+
 function renderResult(data) {
   els.stubBanner.classList.toggle("hidden", !data.meta?.is_stub);
   els.companyName.textContent = data.company_name ?? "—";
+  renderScraped(data.scraped);
   els.summary.textContent = data.summary;
   els.coldEmail.textContent = data.cold_email;
   els.pitch.textContent = data.pitch;

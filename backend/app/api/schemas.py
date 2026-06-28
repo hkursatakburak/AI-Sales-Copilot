@@ -13,10 +13,11 @@ değiştirebilmemizi (veya tersini) sağlar (Clean Architecture).
 from __future__ import annotations
 
 from datetime import datetime
+from typing import ClassVar
 
 from pydantic import BaseModel, Field, HttpUrl
 
-from app.domain.models import CompanyAnalysis, LeadScore
+from app.domain.models import CompanyAnalysis, LeadScore, ScrapedContent
 
 
 class AnalyzeRequest(BaseModel):
@@ -56,6 +57,37 @@ class AnalysisMetaSchema(BaseModel):
     is_stub: bool
 
 
+class ScrapedContentSchema(BaseModel):
+    """Çekilen ham içeriğin özeti (panelde 'gerçekten ne çekildi' göstergesi)."""
+
+    title: str | None
+    site_name: str | None
+    meta_description: str | None
+    word_count: int
+    renderer: str
+    content_preview: str  # tam metnin ilk kısmı (panelde önizleme)
+    fetched_at: datetime
+
+    # Önizlemeyi makul bir uzunlukta tutarız; tam metin yanıtı şişirmesin.
+    # ClassVar: bu bir model alanı değil, sabittir.
+    PREVIEW_CHARS: ClassVar[int] = 320
+
+    @classmethod
+    def from_domain(cls, content: ScrapedContent) -> "ScrapedContentSchema":
+        preview = content.text[: cls.PREVIEW_CHARS]
+        if len(content.text) > cls.PREVIEW_CHARS:
+            preview += "…"
+        return cls(
+            title=content.title,
+            site_name=content.site_name,
+            meta_description=content.meta_description,
+            word_count=content.word_count,
+            renderer=content.renderer,
+            content_preview=preview,
+            fetched_at=content.fetched_at,
+        )
+
+
 class AnalyzeResponse(BaseModel):
     """/analyze yanıtının gövdesi — eklentinin gösterdiği tüm alanlar."""
 
@@ -67,6 +99,7 @@ class AnalyzeResponse(BaseModel):
     cold_email: str
     pitch: str
     meta: AnalysisMetaSchema
+    scraped: ScrapedContentSchema | None = None
 
     @classmethod
     def from_domain(cls, analysis: CompanyAnalysis) -> "AnalyzeResponse":
@@ -82,6 +115,11 @@ class AnalyzeResponse(BaseModel):
                 generated_at=analysis.meta.generated_at,
                 pipeline_version=analysis.meta.pipeline_version,
                 is_stub=analysis.meta.is_stub,
+            ),
+            scraped=(
+                ScrapedContentSchema.from_domain(analysis.scraped)
+                if analysis.scraped is not None
+                else None
             ),
         )
 

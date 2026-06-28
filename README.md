@@ -44,9 +44,15 @@ python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
 
+# (Opsiyonel) Dinamik (JS) scraping için tarayıcı ikilisini kur:
+playwright install chromium
+
 # Sunucuyu çalıştır
 uvicorn app.main:app --reload --port 8000
 ```
+
+> Playwright kurulmazsa sorun olmaz: statik scraping (BeautifulSoup) çalışır,
+> dinamik yedek devre dışı kalır (zarif düşüş).
 
 - Sağlık kontrolü: <http://localhost:8000/health>
 - Otomatik API dokümanı (Swagger): <http://localhost:8000/docs>
@@ -71,5 +77,9 @@ pytest
 
 ## Güvenlik notu
 
-API anahtarları **yalnızca backend'de** (`.env`) tutulur; eklentiye asla
-gömülmez. `.env` dosyası git'e eklenmez.
+- API anahtarları **yalnızca backend'de** (`.env`) tutulur; eklentiye asla
+  gömülmez. `.env` dosyası git'e eklenmez.
+- **SSRF koruması:** Scraping'den önce URL doğrulanır; özel/iç ağ adreslerine
+  (localhost, 10.x, 192.168.x, bulut metadata IP'leri) erişim engellenir.
+- **Etik scraping:** robots.txt'e saygı gösterilir; tanımlı bir User-Agent
+  kullanılır. (LinkedIn gibi ToS'u scraping'i yasaklayan siteler hedeflenmez.)

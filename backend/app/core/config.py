@@ -40,6 +40,21 @@ class Settings(BaseSettings):
     # `COPILOT_CORS_ALLOW_ORIGINS=["https://..."]` ile daraltılmalıdır.
     cors_allow_origins: list[str] = ["*"]
 
+    # --- Scraping (Sprint 2) ---
+    scraper_timeout_seconds: float = 10.0
+    scraper_user_agent: str = (
+        "Mozilla/5.0 (compatible; AISalesCopilotBot/0.1; +https://example.com/bot)"
+    )
+    # Statik çekimden sonra metin bu kelime sayısının altındaysa, içeriğin JS ile
+    # yüklendiği varsayılır ve Playwright (dinamik) yedeğe geçilir.
+    scraper_min_words_for_dynamic: int = 120
+    # Güvenlik: özel/iç ağ adreslerine (localhost, 10.x, 192.168.x, bulut
+    # metadata IP'leri) istek atmayı engeller (SSRF koruması). Yalnızca yerel
+    # geliştirmede True yapın.
+    scraper_allow_private_urls: bool = False
+    # robots.txt'e saygı göster (etik scraping).
+    scraper_respect_robots: bool = True
+
     # --- LLM (Sprint 3'ten itibaren kullanılacak) ---
     # Sprint 1'de zorunlu değil; varsayılan provider Claude olacak.
     anthropic_api_key: str | None = None
