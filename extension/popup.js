@@ -27,6 +27,7 @@ const els = {
   signals: document.getElementById("signals"),
   coldEmail: document.getElementById("cold-email"),
   pitch: document.getElementById("pitch"),
+  regenerateBtn: document.getElementById("regenerate-btn"),
 };
 
 let activeUrl = null;
@@ -180,6 +181,33 @@ async function onAnalyzeClick() {
   }
 }
 
+async function onRegenerateClick() {
+  if (!activeUrl) return;
+  const btn = els.regenerateBtn;
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Üretiliyor…";
+  try {
+    const endpoint = CONFIG.BACKEND_URL + CONFIG.EMAIL_ENDPOINT;
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: activeUrl }),
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(data?.error?.message ?? "Yeniden üretilemedi.");
+    }
+    els.coldEmail.textContent = data.cold_email;
+    els.pitch.textContent = data.pitch;
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
 async function onCopyClick(event) {
   const targetId = event.target.dataset.copyTarget;
   const text = document.getElementById(targetId)?.textContent ?? "";
@@ -196,7 +224,8 @@ async function onCopyClick(event) {
 // --- Başlangıç ---
 async function init() {
   els.analyzeBtn.addEventListener("click", onAnalyzeClick);
-  for (const btn of document.querySelectorAll(".copy-btn")) {
+  els.regenerateBtn.addEventListener("click", onRegenerateClick);
+  for (const btn of document.querySelectorAll(".copy-btn[data-copy-target]")) {
     btn.addEventListener("click", onCopyClick);
   }
 

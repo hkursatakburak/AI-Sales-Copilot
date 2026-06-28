@@ -157,6 +157,24 @@ class AnalyzeResponse(BaseModel):
         )
 
 
+class EmailResponse(BaseModel):
+    """/email yanıtı — soğuk e-posta ve pitch (yeniden üretim için)."""
+
+    company_name: str | None
+    cold_email: str
+    pitch: str
+    is_stub: bool
+
+    @classmethod
+    def from_domain(cls, analysis: CompanyAnalysis) -> "EmailResponse":
+        return cls(
+            company_name=analysis.company_name,
+            cold_email=analysis.cold_email,
+            pitch=analysis.pitch,
+            is_stub=analysis.meta.is_stub,
+        )
+
+
 class HealthResponse(BaseModel):
     status: str
     version: str

@@ -10,17 +10,19 @@ from app.core.exceptions import RobotsDisallowedError
 from app.domain.models import CompanyInsights
 from tests.factories import (
     FakeAnalyzer,
+    FakeOutreachWriter,
     FakeScraper,
     make_scraped_content,
     make_signals,
 )
 
 
-def _service(analyzer=None, robots=None) -> LLMAnalysisService:
+def _service(analyzer=None, robots=None, writer=None) -> LLMAnalysisService:
     return LLMAnalysisService(
         FakeScraper(make_scraped_content()),
         analyzer or FakeAnalyzer(),
         RuleBasedScoringEngine(),
+        writer or FakeOutreachWriter(),
         robots_checker=robots,
     )
 
@@ -34,6 +36,9 @@ async def test_produces_real_analysis_not_stub() -> None:
     assert result.pain_points == ("Acı noktası 1", "Acı noktası 2")
     assert result.scraped is not None
     assert result.signals is not None
+    # Sprint 4: e-posta ve pitch artık placeholder değil
+    assert result.cold_email == "Sahte soğuk e-posta"
+    assert result.pitch == "Sahte pitch"
 
 
 @pytest.mark.asyncio

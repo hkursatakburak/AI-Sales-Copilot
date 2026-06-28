@@ -29,10 +29,16 @@ Backend **Clean Architecture** ile katmanlıdır; bağımlılıklar hep içeri d
 
 ## Sprint planı
 
-- **Sprint 1 (bu sürüm):** Uçtan uca iskelet — eklenti ↔ backend, stub analiz, testler.
-- **Sprint 2:** Web scraping (BeautifulSoup + Playwright) ve veri katmanı.
-- **Sprint 3:** LLM entegrasyonu (Claude) + kural tabanlı, açıklanabilir lead scoring.
-- **Sprint 4:** Soğuk e-posta + pitch üretimi, orkestrasyon, cila.
+- **Sprint 1 ✅:** Uçtan uca iskelet — eklenti ↔ backend, stub analiz, testler.
+- **Sprint 2 ✅:** Web scraping (BeautifulSoup + Playwright) ve veri katmanı + sağlamlık.
+- **Sprint 3 ✅:** LLM entegrasyonu (Claude) + kural tabanlı, açıklanabilir lead scoring.
+- **Sprint 4 ✅:** Soğuk e-posta + pitch üretimi, `/email` yeniden üretim, cila.
+
+## Endpoint'ler
+
+- `POST /analyze` — tam analiz: özet, acı noktaları, sinyaller, lead skoru, soğuk e-posta, pitch.
+- `POST /email` — soğuk e-posta + pitch'i yeniden üretir (eklentideki "↻ Yeniden üret").
+- `GET /health` — sağlık kontrolü. `GET /docs` — Swagger.
 
 ## Hızlı başlangıç
 
@@ -70,6 +76,10 @@ uvicorn app.main:app --reload --port 8000
   öğrenmesi yok. LLM sadece sinyalleri çıkarır; puanı deterministik kural motoru
   verir ve her puanın gerekçesini (`reasons`) döndürür. Mimari, ileride aynı
   `ScoringEngine` arayüzü ardında XGBoost/LightGBM eklemeye açıktır.
+- **Soğuk e-posta + pitch (Sprint 4):** Few-shot prompting ile **doğal, AI gibi
+  görünmeyen** metin (klişe yasak listesi). Tek LLM; ikinci model yok. Satıcı
+  profili `COPILOT_SELLER_NAME` / `COPILOT_SELLER_OFFERING` / `COPILOT_SELLER_REP_NAME`
+  ile ayarlanır — modelin "ne sattığımızı" bilmesi için.
 
 - Sağlık kontrolü: <http://localhost:8000/health>
 - Otomatik API dokümanı (Swagger): <http://localhost:8000/docs>

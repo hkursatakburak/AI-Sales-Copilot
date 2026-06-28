@@ -82,3 +82,29 @@ class ClaudeLLMProvider(LLMProvider):
                 return dict(block.input)
 
         raise LLMError("Analiz modeli beklenen yapılandırılmış çıktıyı döndürmedi.")
+
+    async def generate_text(self, *, system: str, prompt: str, max_tokens: int) -> str:
+        import anthropic
+
+        try:
+            message = await self._client.messages.create(
+                model=self._model,
+                max_tokens=max_tokens,
+                system=system,
+                messages=[{"role": "user", "content": prompt}],
+            )
+        except anthropic.AuthenticationError as exc:
+            logger.error("Claude kimlik doğrulama hatası: %s", exc)
+            raise LLMError("Analiz servisi yapılandırması hatalı (API anahtarı).") from exc
+        except anthropic.RateLimitError as exc:
+            raise LLMError(
+                "Analiz servisi şu an yoğun. Lütfen birazdan tekrar deneyin."
+            ) from exc
+        except anthropic.APIConnectionError as exc:
+            raise LLMError("Analiz servisine bağlanılamadı.") from exc
+        except anthropic.APIError as exc:
+            logger.error("Claude API hatası: %s", exc)
+            raise LLMError() from exc
+
+        text = "".join(block.text for block in message.content if block.type == "text")
+        return text.strip()

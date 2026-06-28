@@ -77,6 +77,18 @@ class Settings(BaseSettings):
     # LLM'e gönderilen metin bu karakter sayısında kırpılır (context-stuffing /
     # RAG-lite; token maliyetini sınırlar). Tek sayfa için fazlasıyla yeterli.
     llm_max_input_chars: int = 6000
+    llm_email_max_tokens: int = 700
+    llm_pitch_max_tokens: int = 700
+
+    # --- Satıcı profili (Sprint 4) ---
+    # Soğuk e-posta/pitch'in "ne sattığımızı" bilmesi için. Kendi ürününüze göre
+    # COPILOT_SELLER_* ile değiştirin.
+    seller_name: str = "AI Sales Copilot"
+    seller_offering: str = (
+        "Satış ekiplerinin potansiyel müşteri araştırmasını ve kişiselleştirilmiş "
+        "ulaşım metni yazımını saniyeler içinde yapan bir yapay zekâ asistanı."
+    )
+    seller_rep_name: str = "Elif"
 
     @property
     def is_production(self) -> bool:

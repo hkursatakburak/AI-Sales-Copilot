@@ -227,6 +227,11 @@ ul {
   line-height: 1.5;
 }
 
+.btn-group {
+  display: flex;
+  gap: 6px;
+}
+
 .copy-btn {
   border: 1px solid var(--border);
   background: #fff;

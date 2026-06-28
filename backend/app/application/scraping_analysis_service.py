@@ -47,16 +47,16 @@ class ScrapingAnalysisService(AnalysisService):
             url=url,
             company_name=company_name,
             summary=(
-                "[İSKELET] LLM tarafından üretilen şirket özeti Sprint 3'te gelecek. "
+                "[LLM KAPALI] Şirket özeti için API anahtarı gerekir. "
                 f"Şu an {content.word_count} kelimelik gerçek içerik çekildi "
                 f"({content.renderer} render)."
             ),
             pain_points=(
-                "[İskelet] Acı noktaları Sprint 3'te LLM ile çıkarılacak.",
+                "[LLM KAPALI] Acı noktaları için API anahtarı (COPILOT_ANTHROPIC_API_KEY) ekleyin.",
             ),
             lead_score=self._placeholder_score(),
-            cold_email="[İSKELET] Soğuk e-posta Sprint 4'te üretilecek.",
-            pitch="[İSKELET] Toplantı sunumu Sprint 4'te üretilecek.",
+            cold_email="[LLM KAPALI] Soğuk e-posta için API anahtarı ekleyin.",
+            pitch="[LLM KAPALI] Toplantı sunumu için API anahtarı ekleyin.",
             meta=AnalysisMeta(
                 generated_at=datetime.now(timezone.utc),
                 pipeline_version=PIPELINE_VERSION,
@@ -72,9 +72,9 @@ class ScrapingAnalysisService(AnalysisService):
             tier=LeadTier.WARM,
             reasons=(
                 ScoreReason(
-                    rule="skeleton_placeholder",
+                    rule="llm_disabled",
                     points=50,
-                    explanation="Kural tabanlı skorlama Sprint 3'te eklenecek.",
+                    explanation="Gerçek skor için API anahtarı (LLM) gerekir.",
                 ),
             ),
         )

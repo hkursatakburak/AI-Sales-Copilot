@@ -68,12 +68,29 @@ class LLMProvider(ABC):
         """Verilen JSON şemasına uyan yapılandırılmış bir sözlük döndürür."""
         raise NotImplementedError
 
+    @abstractmethod
+    async def generate_text(self, *, system: str, prompt: str, max_tokens: int) -> str:
+        """Serbest metin üretir (özet/e-posta/pitch gibi)."""
+        raise NotImplementedError
+
 
 class CompanyInsightAnalyzer(ABC):
     """Çekilen içerikten `CompanyInsights` üreten analizci sözleşmesi."""
 
     @abstractmethod
     async def analyze(self, content: ScrapedContent) -> CompanyInsights:
+        raise NotImplementedError
+
+
+class OutreachWriter(ABC):
+    """Şirket içgörüsünden kişiselleştirilmiş satış metni üreten yazar sözleşmesi."""
+
+    @abstractmethod
+    async def write_cold_email(self, company_name: str, insights: CompanyInsights) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def write_pitch(self, company_name: str, insights: CompanyInsights) -> str:
         raise NotImplementedError
 
 

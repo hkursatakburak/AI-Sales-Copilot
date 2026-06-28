@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from app.domain.interfaces import CompanyInsightAnalyzer, LLMProvider, WebScraper
+from app.domain.interfaces import (
+    CompanyInsightAnalyzer,
+    LLMProvider,
+    OutreachWriter,
+    WebScraper,
+)
 from app.domain.models import (
     CompanyInsights,
     CompanySignals,
@@ -108,3 +113,25 @@ class FakeLLMProvider(LLMProvider):
     async def extract_structured(self, **kwargs) -> dict:
         self.last_kwargs = kwargs
         return self._payload
+
+    async def generate_text(self, **kwargs) -> str:
+        self.last_text_kwargs = kwargs
+        return "Üretilen metin."
+
+
+class FakeOutreachWriter(OutreachWriter):
+    """Sabit e-posta/pitch döndüren yazar (LLM'siz test)."""
+
+    def __init__(self, email: str = "Sahte soğuk e-posta", pitch: str = "Sahte pitch"):
+        self._email = email
+        self._pitch = pitch
+        self.email_called = False
+        self.pitch_called = False
+
+    async def write_cold_email(self, company_name, insights) -> str:
+        self.email_called = True
+        return self._email
+
+    async def write_pitch(self, company_name, insights) -> str:
+        self.pitch_called = True
+        return self._pitch

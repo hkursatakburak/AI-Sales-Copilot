@@ -3,4 +3,5 @@
 const CONFIG = {
   BACKEND_URL: "http://localhost:8000",
   ANALYZE_ENDPOINT: "/analyze",
+  EMAIL_ENDPOINT: "/email",
 };

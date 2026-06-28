@@ -109,6 +109,19 @@ class CompanyInsights:
 
 
 @dataclass(frozen=True, slots=True)
+class SellerProfile:
+    """Soğuk e-posta ve pitch'i kişiselleştirmek için SATICININ (bizim) profili.
+
+    E-posta anlamlı olsun diye modelin 'ne sattığımızı' bilmesi şarttır; aksi
+    halde genel/uydurma çıktı üretir. Yapılandırmadan (config) gelir.
+    """
+
+    name: str  # satıcı şirket/ürün adı
+    offering: str  # ne sattığımız / değer önerisi
+    rep_name: str  # e-postayı imzalayan temsilci
+
+
+@dataclass(frozen=True, slots=True)
 class CompanyAnalysis:
     """Bir şirket için üretilen eksiksiz analiz sonucu.
 

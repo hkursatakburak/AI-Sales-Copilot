@@ -13,6 +13,7 @@ test edilebilir, LLM mock'lanabilir.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import datetime, timezone
 
@@ -22,6 +23,7 @@ from app.core.exceptions import RobotsDisallowedError
 from app.domain.interfaces import (
     AnalysisService,
     CompanyInsightAnalyzer,
+    OutreachWriter,
     ScoringEngine,
     WebScraper,
 )
@@ -30,9 +32,6 @@ from app.infrastructure.scraping.robots import RobotsChecker
 
 logger = logging.getLogger(__name__)
 
-_EMAIL_PLACEHOLDER = "[İSKELET] Kişiselleştirilmiş soğuk e-posta Sprint 4'te üretilecek."
-_PITCH_PLACEHOLDER = "[İSKELET] Toplantı sunumu Sprint 4'te üretilecek."
-
 
 class LLMAnalysisService(AnalysisService):
     def __init__(
@@ -40,11 +39,13 @@ class LLMAnalysisService(AnalysisService):
         scraper: WebScraper,
         analyzer: CompanyInsightAnalyzer,
         scoring_engine: ScoringEngine,
+        outreach_writer: OutreachWriter,
         robots_checker: RobotsChecker | None = None,
     ):
         self._scraper = scraper
         self._analyzer = analyzer
         self._scoring_engine = scoring_engine
+        self._outreach_writer = outreach_writer
         self._robots_checker = robots_checker
 
     async def analyze(self, url: str) -> CompanyAnalysis:
@@ -56,6 +57,12 @@ class LLMAnalysisService(AnalysisService):
 
         insights = await self._analyzer.analyze(content)
         lead_score = self._scoring_engine.score(insights.signals)
+
+        # E-posta ve pitch birbirinden bağımsız → eşzamanlı üret (daha hızlı).
+        cold_email, pitch = await asyncio.gather(
+            self._outreach_writer.write_cold_email(company_name, insights),
+            self._outreach_writer.write_pitch(company_name, insights),
+        )
 
         logger.info(
             "Analiz tamam: %s | skor=%d (%s) | %d acı noktası",
@@ -71,8 +78,8 @@ class LLMAnalysisService(AnalysisService):
             summary=insights.summary,
             pain_points=insights.pain_points,
             lead_score=lead_score,
-            cold_email=_EMAIL_PLACEHOLDER,
-            pitch=_PITCH_PLACEHOLDER,
+            cold_email=cold_email,
+            pitch=pitch,
             meta=AnalysisMeta(
                 generated_at=datetime.now(timezone.utc),
                 pipeline_version=PIPELINE_VERSION,

@@ -25,7 +25,12 @@ from app.domain.models import (
 from app.application.llm_analysis_service import LLMAnalysisService
 from app.application.rule_based_scoring_engine import RuleBasedScoringEngine
 from app.main import create_app
-from tests.factories import FakeAnalyzer, FakeScraper, make_scraped_content
+from tests.factories import (
+    FakeAnalyzer,
+    FakeOutreachWriter,
+    FakeScraper,
+    make_scraped_content,
+)
 
 
 @pytest.fixture
@@ -72,6 +77,7 @@ def test_analyze_llm_pipeline_returns_real_analysis(settings) -> None:
         FakeScraper(content),
         FakeAnalyzer(),
         RuleBasedScoringEngine(),
+        FakeOutreachWriter(),
     )
 
     app = create_app(settings=settings)
@@ -89,6 +95,9 @@ def test_analyze_llm_pipeline_returns_real_analysis(settings) -> None:
     assert body["signals"]["sector"] == "SaaS"
     assert 0 <= body["lead_score"]["value"] <= 100
     assert body["lead_score"]["tier"] in {"hot", "warm", "cold"}
+    # Sprint 4: gerçek e-posta + pitch
+    assert body["cold_email"] == "Sahte soğuk e-posta"
+    assert body["pitch"] == "Sahte pitch"
 
 
 def test_analyze_rejects_invalid_url(client: TestClient) -> None:

@@ -15,10 +15,12 @@ from functools import lru_cache
 
 from app.application.company_insight_analyzer import LLMCompanyInsightAnalyzer
 from app.application.llm_analysis_service import LLMAnalysisService
+from app.application.llm_outreach_writer import LLMOutreachWriter
 from app.application.rule_based_scoring_engine import RuleBasedScoringEngine
 from app.application.scraping_analysis_service import ScrapingAnalysisService
 from app.core.config import get_settings
 from app.domain.interfaces import AnalysisService, WebScraper
+from app.domain.models import SellerProfile
 from app.infrastructure.llm.claude_provider import ClaudeLLMProvider
 from app.infrastructure.scraping.beautifulsoup_scraper import BeautifulSoupScraper
 
@@ -89,9 +91,21 @@ def get_analysis_service() -> AnalysisService:
     analyzer = LLMCompanyInsightAnalyzer(
         provider, max_input_chars=settings.llm_max_input_chars
     )
+    seller = SellerProfile(
+        name=settings.seller_name,
+        offering=settings.seller_offering,
+        rep_name=settings.seller_rep_name,
+    )
+    outreach_writer = LLMOutreachWriter(
+        provider,
+        seller,
+        email_max_tokens=settings.llm_email_max_tokens,
+        pitch_max_tokens=settings.llm_pitch_max_tokens,
+    )
     return LLMAnalysisService(
         get_web_scraper(),
         analyzer,
         RuleBasedScoringEngine(),
+        outreach_writer,
         robots_checker=robots_checker,
     )
