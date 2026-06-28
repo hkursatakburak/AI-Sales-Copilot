@@ -1,0 +1,75 @@
+# AI Sales Copilot
+
+Satış temsilcilerinin işini hızlandıran bir Chrome eklentisi + Python backend.
+Bir şirketin web sitesindeyken tek tıkla; **şirket özeti**, **acı noktaları**,
+**lead skoru**, **soğuk e-posta** ve **toplantı sunumu** üretir.
+
+> İnsanın 30-45 dakikada yaptığı araştırma + yazma işini ~30 saniyeye indirmeyi hedefler.
+
+## Mimari (özet)
+
+```
+Chrome Extension (Manifest V3)
+        │  HTTPS / JSON  (POST /analyze)
+        ▼
+FastAPI Backend  ──►  Scraping (Sprint 2)
+   (Clean Arch)  ──►  LLM: Claude (Sprint 3)
+                 ──►  Lead Scoring: kural tabanlı (Sprint 3)
+                 ──►  Cold Email + Pitch (Sprint 4)
+```
+
+Backend **Clean Architecture** ile katmanlıdır; bağımlılıklar hep içeri doğru akar:
+
+| Katman | Sorumluluk | Örnek |
+|---|---|---|
+| `domain` | Saf iş modelleri + arayüzler (framework'süz) | `CompanyAnalysis`, `AnalysisService` |
+| `application` | İş akışı / use-case'ler | `StubAnalysisService` |
+| `infrastructure` | Dış dünya uygulamaları (Sprint 2+) | scraper, LLM istemcisi |
+| `api` | HTTP sınırı: route, şema, DI | `/analyze`, `/health` |
+
+## Sprint planı
+
+- **Sprint 1 (bu sürüm):** Uçtan uca iskelet — eklenti ↔ backend, stub analiz, testler.
+- **Sprint 2:** Web scraping (BeautifulSoup + Playwright) ve veri katmanı.
+- **Sprint 3:** LLM entegrasyonu (Claude) + kural tabanlı, açıklanabilir lead scoring.
+- **Sprint 4:** Soğuk e-posta + pitch üretimi, orkestrasyon, cila.
+
+## Hızlı başlangıç
+
+### 1) Backend
+
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -r requirements-dev.txt
+
+# Sunucuyu çalıştır
+uvicorn app.main:app --reload --port 8000
+```
+
+- Sağlık kontrolü: <http://localhost:8000/health>
+- Otomatik API dokümanı (Swagger): <http://localhost:8000/docs>
+
+### 2) Testler
+
+```bash
+cd backend
+pytest
+```
+
+### 3) Chrome eklentisi
+
+1. Chrome'da `chrome://extensions` adresine git.
+2. Sağ üstten **Geliştirici modu**'nu aç.
+3. **Paketlenmemiş öğe yükle** → `extension/` klasörünü seç.
+4. Bir şirket sitesine gir, araç çubuğundaki eklenti ikonuna tıkla,
+   **"Bu şirketi analiz et"** butonuna bas.
+
+> Backend `http://localhost:8000` üzerinde çalışıyor olmalı. Adres
+> `extension/config.js` ve `extension/manifest.json` içinden değiştirilebilir.
+
+## Güvenlik notu
+
+API anahtarları **yalnızca backend'de** (`.env`) tutulur; eklentiye asla
+gömülmez. `.env` dosyası git'e eklenmez.

@@ -1,0 +1,21 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- Sanal ortam ---
+.venv/
+venv/
+env/
+
+# --- Ortam / sırlar ---
+.env
+*.local
+
+# --- İşletim sistemi / editör ---
+.DS_Store
+.idea/
+.vscode/
