@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 from app import PIPELINE_VERSION
-from app.core.exceptions import ScrapeError
+from app.core.exceptions import RobotsDisallowedError
 from app.domain.interfaces import AnalysisService, WebScraper
 from app.domain.models import (
     AnalysisMeta,
@@ -41,7 +41,7 @@ class ScrapingAnalysisService(AnalysisService):
 
     async def analyze(self, url: str) -> CompanyAnalysis:
         if self._robots_checker is not None and not await self._robots_checker.is_allowed(url):
-            raise ScrapeError("Bu sayfa robots.txt tarafından scraping'e kapatılmış.")
+            raise RobotsDisallowedError()
 
         content = await self._scraper.scrape(url)
         company_name = self._company_name(content, url)

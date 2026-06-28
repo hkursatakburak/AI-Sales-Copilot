@@ -18,7 +18,7 @@ import ipaddress
 import socket
 from urllib.parse import urlparse
 
-from app.core.exceptions import ScrapeError
+from app.core.exceptions import DnsError, ScrapeError
 
 _ALLOWED_SCHEMES = {"http", "https"}
 
@@ -45,11 +45,11 @@ class UrlGuard:
         parsed = urlparse(url)
 
         if parsed.scheme not in _ALLOWED_SCHEMES:
-            raise ScrapeError(f"Desteklenmeyen URL şeması: '{parsed.scheme}'.")
+            raise ScrapeError("Geçerli bir web adresi (http/https) girilmeli.")
 
         host = parsed.hostname
         if not host:
-            raise ScrapeError("URL'de geçerli bir host bulunamadı.")
+            raise ScrapeError("Geçerli bir web adresi girilmeli.")
 
         if self.allow_private:
             return  # Yerel geliştirme: DNS çözümü ve IP kontrolü atlanır.
@@ -57,11 +57,10 @@ class UrlGuard:
         try:
             addr_infos = socket.getaddrinfo(host, None)
         except socket.gaierror as exc:
-            raise ScrapeError(f"Host çözümlenemedi: {host}") from exc
+            raise DnsError() from exc
 
         for info in addr_infos:
             ip_str = info[4][0]
             if self.is_blocked_ip(ip_str):
-                raise ScrapeError(
-                    f"Güvenlik: özel/iç ağ adresine erişim engellendi ({host} -> {ip_str})."
-                )
+                # Kullanıcıya sade mesaj; teknik ayrıntı (IP) yalnızca logda.
+                raise ScrapeError("Bu adres analiz edilemez (özel/iç ağ adresi).")

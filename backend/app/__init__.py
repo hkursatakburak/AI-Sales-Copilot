@@ -1,6 +1,6 @@
 """AI Sales Copilot backend package."""
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 # Bu sürüm hem /health çıktısında hem de analiz çıktısının `meta` alanında
 # kullanılır. Her sprint sonunda anlamlı bir şekilde artırılır (semver).

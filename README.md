@@ -81,5 +81,15 @@ pytest
   gömülmez. `.env` dosyası git'e eklenmez.
 - **SSRF koruması:** Scraping'den önce URL doğrulanır; özel/iç ağ adreslerine
   (localhost, 10.x, 192.168.x, bulut metadata IP'leri) erişim engellenir.
-- **Etik scraping:** robots.txt'e saygı gösterilir; tanımlı bir User-Agent
-  kullanılır. (LinkedIn gibi ToS'u scraping'i yasaklayan siteler hedeflenmez.)
+- **Etik scraping:** robots.txt'e saygı gösterilir; gerçekçi bir tarayıcı
+  User-Agent'ı kullanılır. (LinkedIn gibi ToS'u scraping'i yasaklayan siteler
+  hedeflenmez. CAPTCHA/bot koruması AŞILMAZ — engellenen sitelere kullanıcıya
+  anlaşılır bir mesaj gösterilir.)
+
+## Scraping sağlamlığı
+
+- Geçici hatalarda (timeout/bağlantı) üssel backoff'lu **yeniden deneme**.
+- Aynı siteye art arda isteklerde **rate limiting** (nezaket).
+- Ayrı connect/read **zaman aşımı** yönetimi.
+- Tüm hatalar (403, timeout, DNS, SSL, bağlantı, robots.txt) **kullanıcı dostu,
+  teknik olmayan** mesajlara çevrilir.

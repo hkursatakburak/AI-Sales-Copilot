@@ -35,10 +35,79 @@ class AppError(Exception):
 
 
 class ScrapeError(AppError):
-    """Web scraping sırasında oluşan hata (Sprint 2'de kullanılacak)."""
+    """Web scraping sırasında oluşan genel hata.
+
+    `message` doğrudan kullanıcıya gösterilir, bu yüzden TEKNİK DEĞİL,
+    anlaşılır olmalıdır. Alt sınıflar her hata türü için uygun varsayılan
+    mesajı taşır; çağıran kod isterse mesajı geçersiz kılabilir.
+    """
 
     code = "scrape_error"
     status_code = 502
+    default_message = "Sayfa analiz edilemedi. Lütfen daha sonra tekrar deneyin."
+
+    def __init__(self, message: str | None = None):
+        super().__init__(message or self.default_message)
+
+
+class SiteBlockedError(ScrapeError):
+    """Site otomatik erişimi engelliyor (HTTP 401/403/429)."""
+
+    code = "site_blocked"
+    status_code = 502
+    default_message = (
+        "Bu web sitesi otomatik veri çekmeyi güvenlik nedeniyle engelliyor, "
+        "bu yüzden analiz edilemiyor."
+    )
+
+
+class ScrapeTimeoutError(ScrapeError):
+    """Site zamanında yanıt vermedi."""
+
+    code = "scrape_timeout"
+    status_code = 504
+    default_message = (
+        "Web sitesi yanıt vermedi (zaman aşımı). Lütfen birazdan tekrar deneyin."
+    )
+
+
+class RobotsDisallowedError(ScrapeError):
+    """robots.txt bu sayfanın çekilmesini yasaklıyor."""
+
+    code = "robots_disallowed"
+    status_code = 403
+    default_message = (
+        "Bu sitenin sahibi otomatik erişime izin vermiyor (robots.txt), "
+        "bu yüzden sayfa analiz edilmiyor."
+    )
+
+
+class DnsError(ScrapeError):
+    """Adres çözümlenemedi (DNS)."""
+
+    code = "dns_error"
+    status_code = 502
+    default_message = "Bu adrese ulaşılamadı. Web sitesi adresi doğru mu?"
+
+
+class SslError(ScrapeError):
+    """Sitenin güvenlik sertifikası doğrulanamadı."""
+
+    code = "ssl_error"
+    status_code = 502
+    default_message = (
+        "Web sitesinin güvenlik sertifikası doğrulanamadı, bağlantı güvenli değil."
+    )
+
+
+class ConnectionFailedError(ScrapeError):
+    """Siteye ağ bağlantısı kurulamadı."""
+
+    code = "connection_failed"
+    status_code = 502
+    default_message = (
+        "Web sitesine bağlanılamadı. İnternet bağlantınızı veya adresi kontrol edin."
+    )
 
 
 class LLMError(AppError):

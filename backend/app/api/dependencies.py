@@ -18,6 +18,7 @@ from app.domain.interfaces import AnalysisService, WebScraper
 from app.infrastructure.scraping.beautifulsoup_scraper import BeautifulSoupScraper
 from app.infrastructure.scraping.hybrid_scraper import HybridScraper
 from app.infrastructure.scraping.playwright_scraper import PlaywrightScraper
+from app.infrastructure.scraping.rate_limiter import HostRateLimiter
 from app.infrastructure.scraping.robots import RobotsChecker
 from app.infrastructure.scraping.url_guard import UrlGuard
 
@@ -27,11 +28,16 @@ def get_web_scraper() -> WebScraper:
     """Aktif scraper'ı (tekil) kurar ve döndürür."""
     settings = get_settings()
     guard = UrlGuard(allow_private=settings.scraper_allow_private_urls)
+    rate_limiter = HostRateLimiter(settings.scraper_min_request_interval_seconds)
 
     static_scraper = BeautifulSoupScraper(
         guard,
         timeout=settings.scraper_timeout_seconds,
+        connect_timeout=settings.scraper_connect_timeout_seconds,
         user_agent=settings.scraper_user_agent,
+        max_retries=settings.scraper_max_retries,
+        retry_backoff=settings.scraper_retry_backoff_seconds,
+        rate_limiter=rate_limiter,
     )
     dynamic_scraper = PlaywrightScraper(
         guard,

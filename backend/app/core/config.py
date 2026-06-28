@@ -41,13 +41,23 @@ class Settings(BaseSettings):
     cors_allow_origins: list[str] = ["*"]
 
     # --- Scraping (Sprint 2) ---
-    scraper_timeout_seconds: float = 10.0
+    # Toplam (read) zaman aşımı ve ayrı bağlantı (connect) zaman aşımı.
+    scraper_timeout_seconds: float = 15.0
+    scraper_connect_timeout_seconds: float = 5.0
+    # Gerçekçi, güncel bir tarayıcı User-Agent'ı (standart davranış; basit bot
+    # filtrelerini geçmeye yardımcı olur — gelişmiş korumaları AŞMAYA çalışmaz).
     scraper_user_agent: str = (
-        "Mozilla/5.0 (compatible; AISalesCopilotBot/0.1; +https://example.com/bot)"
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
     )
     # Statik çekimden sonra metin bu kelime sayısının altındaysa, içeriğin JS ile
     # yüklendiği varsayılır ve Playwright (dinamik) yedeğe geçilir.
     scraper_min_words_for_dynamic: int = 120
+    # Geçici hatalarda (timeout/bağlantı) yeniden deneme sayısı ve backoff.
+    scraper_max_retries: int = 2
+    scraper_retry_backoff_seconds: float = 0.5
+    # Nezaket için aynı siteye ardışık isteklerde minimum bekleme (rate limiting).
+    scraper_min_request_interval_seconds: float = 1.0
     # Güvenlik: özel/iç ağ adreslerine (localhost, 10.x, 192.168.x, bulut
     # metadata IP'leri) istek atmayı engeller (SSRF koruması). Yalnızca yerel
     # geliştirmede True yapın.
