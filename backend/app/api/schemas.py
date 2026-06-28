@@ -17,7 +17,12 @@ from typing import ClassVar
 
 from pydantic import BaseModel, Field, HttpUrl
 
-from app.domain.models import CompanyAnalysis, LeadScore, ScrapedContent
+from app.domain.models import (
+    CompanyAnalysis,
+    CompanySignals,
+    LeadScore,
+    ScrapedContent,
+)
 
 
 class AnalyzeRequest(BaseModel):
@@ -88,6 +93,28 @@ class ScrapedContentSchema(BaseModel):
         )
 
 
+class SignalsSchema(BaseModel):
+    """LLM'in çıkardığı, skorlamayı besleyen sinyaller (şeffaflık için sunulur)."""
+
+    sector: str | None
+    employee_band: str | None
+    is_hiring: bool
+    hiring_roles: list[str]
+    growth_signals: list[str]
+    technologies: list[str]
+
+    @classmethod
+    def from_domain(cls, signals: CompanySignals) -> "SignalsSchema":
+        return cls(
+            sector=signals.sector,
+            employee_band=signals.employee_band,
+            is_hiring=signals.is_hiring,
+            hiring_roles=list(signals.hiring_roles),
+            growth_signals=list(signals.growth_signals),
+            technologies=list(signals.technologies),
+        )
+
+
 class AnalyzeResponse(BaseModel):
     """/analyze yanıtının gövdesi — eklentinin gösterdiği tüm alanlar."""
 
@@ -100,6 +127,7 @@ class AnalyzeResponse(BaseModel):
     pitch: str
     meta: AnalysisMetaSchema
     scraped: ScrapedContentSchema | None = None
+    signals: SignalsSchema | None = None
 
     @classmethod
     def from_domain(cls, analysis: CompanyAnalysis) -> "AnalyzeResponse":
@@ -119,6 +147,11 @@ class AnalyzeResponse(BaseModel):
             scraped=(
                 ScrapedContentSchema.from_domain(analysis.scraped)
                 if analysis.scraped is not None
+                else None
+            ),
+            signals=(
+                SignalsSchema.from_domain(analysis.signals)
+                if analysis.signals is not None
                 else None
             ),
         )

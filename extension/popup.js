@@ -23,6 +23,8 @@ const els = {
   scoreReasons: document.getElementById("score-reasons"),
   summary: document.getElementById("summary"),
   painPoints: document.getElementById("pain-points"),
+  signalsCard: document.getElementById("signals-card"),
+  signals: document.getElementById("signals"),
   coldEmail: document.getElementById("cold-email"),
   pitch: document.getElementById("pitch"),
 };
@@ -118,10 +120,38 @@ function renderScraped(scraped) {
   els.contentPreview.textContent = scraped.content_preview || "";
 }
 
+function renderSignals(signals) {
+  if (!signals) {
+    els.signalsCard.classList.add("hidden");
+    return;
+  }
+  els.signalsCard.classList.remove("hidden");
+  const chips = [];
+  if (signals.sector) chips.push(`Sektör: ${signals.sector}`);
+  if (signals.employee_band) chips.push(`Çalışan: ${signals.employee_band}`);
+  if (signals.is_hiring) chips.push("İşe alım var");
+  for (const role of signals.hiring_roles || []) chips.push(role);
+  for (const g of signals.growth_signals || []) chips.push(g);
+  for (const t of signals.technologies || []) chips.push(t);
+
+  els.signals.innerHTML = "";
+  if (chips.length === 0) {
+    els.signals.textContent = "Belirgin sinyal bulunamadı.";
+    return;
+  }
+  for (const text of chips) {
+    const span = document.createElement("span");
+    span.className = "chip";
+    span.textContent = text;
+    els.signals.appendChild(span);
+  }
+}
+
 function renderResult(data) {
   els.stubBanner.classList.toggle("hidden", !data.meta?.is_stub);
   els.companyName.textContent = data.company_name ?? "—";
   renderScraped(data.scraped);
+  renderSignals(data.signals);
   els.summary.textContent = data.summary;
   els.coldEmail.textContent = data.cold_email;
   els.pitch.textContent = data.pitch;

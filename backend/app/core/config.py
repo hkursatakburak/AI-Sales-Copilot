@@ -65,9 +65,18 @@ class Settings(BaseSettings):
     # robots.txt'e saygı göster (etik scraping).
     scraper_respect_robots: bool = True
 
-    # --- LLM (Sprint 3'ten itibaren kullanılacak) ---
-    # Sprint 1'de zorunlu değil; varsayılan provider Claude olacak.
+    # --- LLM (Sprint 3) ---
+    # Anahtar yoksa sistem zarif şekilde Sprint 2 davranışına (scraping-only,
+    # is_stub=True) düşer; uygulama yine çalışır.
     anthropic_api_key: str | None = None
+    # Varsayılan model: en yetenekli Opus. Maliyet için Sonnet'e geçmek isterseniz:
+    #   COPILOT_LLM_MODEL=claude-sonnet-4-6   (~%40 daha ucuz, bu görevlere uygun)
+    llm_model: str = "claude-opus-4-8"
+    llm_max_tokens: int = 2048
+    llm_timeout_seconds: float = 60.0
+    # LLM'e gönderilen metin bu karakter sayısında kırpılır (context-stuffing /
+    # RAG-lite; token maliyetini sınırlar). Tek sayfa için fazlasıyla yeterli.
+    llm_max_input_chars: int = 6000
 
     @property
     def is_production(self) -> bool:

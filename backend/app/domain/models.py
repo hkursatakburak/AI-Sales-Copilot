@@ -82,6 +82,33 @@ class ScrapedContent:
 
 
 @dataclass(frozen=True, slots=True)
+class CompanySignals:
+    """LLM tarafından çekilen metinden çıkarılan yapılandırılmış iş sinyalleri.
+
+    Bu, lead scoring'in girdisidir. ÖNEMLİ: LLM yalnızca bu sinyalleri ÇIKARIR
+    (özellik mühendisliği); puanı LLM vermez — deterministik kural motoru verir.
+    Bu, "LLM-assisted scoring" yaklaşımıdır: esnek metin anlama (LLM) + şeffaf,
+    açıklanabilir karar (kurallar). ML modeli eğitilmez.
+    """
+
+    sector: str | None  # örn. "SaaS", "e-ticaret", "fintech"
+    employee_band: str | None  # örn. "11-50", "51-200" (siteden tahmin, çoğu kez None)
+    is_hiring: bool  # açık iş ilanı sinyali var mı
+    hiring_roles: tuple[str, ...]  # örn. ("DevOps", "Satış")
+    growth_signals: tuple[str, ...]  # örn. ("yeni yatırım", "yeni pazar")
+    technologies: tuple[str, ...]  # tespit edilen teknolojiler
+
+
+@dataclass(frozen=True, slots=True)
+class CompanyInsights:
+    """LLM analiz çıktısı: özet + acı noktaları + sinyaller (tek çağrıdan)."""
+
+    summary: str
+    pain_points: tuple[str, ...]
+    signals: CompanySignals
+
+
+@dataclass(frozen=True, slots=True)
 class CompanyAnalysis:
     """Bir şirket için üretilen eksiksiz analiz sonucu.
 
@@ -100,3 +127,5 @@ class CompanyAnalysis:
     meta: AnalysisMeta
     # Sprint 2'den itibaren doldurulan gerçek scraping çıktısı.
     scraped: ScrapedContent | None = None
+    # Sprint 3'ten itibaren: LLM'in çıkardığı, skorlamayı besleyen sinyaller.
+    signals: CompanySignals | None = None

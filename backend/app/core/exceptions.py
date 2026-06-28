@@ -111,10 +111,16 @@ class ConnectionFailedError(ScrapeError):
 
 
 class LLMError(AppError):
-    """LLM çağrısı sırasında oluşan hata (Sprint 3'te kullanılacak)."""
+    """LLM çağrısı sırasında oluşan hata."""
 
     code = "llm_error"
     status_code = 502
+    default_message = (
+        "Analiz servisi şu an yanıt veremiyor. Lütfen birazdan tekrar deneyin."
+    )
+
+    def __init__(self, message: str | None = None):
+        super().__init__(message or self.default_message)
 
 
 def _error_body(code: str, message: str) -> dict:

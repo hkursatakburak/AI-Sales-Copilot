@@ -47,12 +47,29 @@ pip install -r requirements-dev.txt
 # (Opsiyonel) Dinamik (JS) scraping için tarayıcı ikilisini kur:
 playwright install chromium
 
+# LLM (Sprint 3) için Claude API anahtarını ayarla:
+export COPILOT_ANTHROPIC_API_KEY=sk-ant-...
+# (İsteğe bağlı) maliyet için daha ucuz modele geç:
+# export COPILOT_LLM_MODEL=claude-sonnet-4-6
+
 # Sunucuyu çalıştır
 uvicorn app.main:app --reload --port 8000
 ```
 
-> Playwright kurulmazsa sorun olmaz: statik scraping (BeautifulSoup) çalışır,
-> dinamik yedek devre dışı kalır (zarif düşüş).
+> **Zarif düşüş:** Playwright kurulmazsa statik scraping çalışmaya devam eder.
+> **API anahtarı yoksa** sistem scraping-only moda düşer (özet/skor üretilmez,
+> `is_stub: true`) — uygulama yine çalışır.
+
+## LLM ve Lead Scoring (Sprint 3)
+
+- **LLM (Claude):** Yalnızca dil/çıkarım işleri — şirket özeti, acı noktaları ve
+  yapılandırılmış **sinyal çıkarımı** (sektör, işe alım, büyüme, teknoloji).
+  Tek bir yapılandırılmış çağrı (forced tool use) ile üçü birden alınır.
+  Varsayılan model `claude-opus-4-8`; `COPILOT_LLM_MODEL` ile değiştirilebilir.
+- **Lead Scoring:** **Kural tabanlı ve açıklanabilir** (Explainable AI) — makine
+  öğrenmesi yok. LLM sadece sinyalleri çıkarır; puanı deterministik kural motoru
+  verir ve her puanın gerekçesini (`reasons`) döndürür. Mimari, ileride aynı
+  `ScoringEngine` arayüzü ardında XGBoost/LightGBM eklemeye açıktır.
 
 - Sağlık kontrolü: <http://localhost:8000/health>
 - Otomatik API dokümanı (Swagger): <http://localhost:8000/docs>

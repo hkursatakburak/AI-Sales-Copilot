@@ -13,9 +13,9 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from urllib.parse import urlparse
 
 from app import PIPELINE_VERSION
+from app.application.company_name import derive_company_name
 from app.core.exceptions import RobotsDisallowedError
 from app.domain.interfaces import AnalysisService, WebScraper
 from app.domain.models import (
@@ -23,15 +23,11 @@ from app.domain.models import (
     CompanyAnalysis,
     LeadScore,
     LeadTier,
-    ScrapedContent,
     ScoreReason,
 )
 from app.infrastructure.scraping.robots import RobotsChecker
 
 logger = logging.getLogger(__name__)
-
-# Başlıkları şirket adına indirgerken kullanılan ayraçlar ("Acme | Anasayfa").
-_TITLE_SEPARATORS = ("|", "—", "–", "-", "·", ":", "•")
 
 
 class ScrapingAnalysisService(AnalysisService):
@@ -44,7 +40,7 @@ class ScrapingAnalysisService(AnalysisService):
             raise RobotsDisallowedError()
 
         content = await self._scraper.scrape(url)
-        company_name = self._company_name(content, url)
+        company_name = derive_company_name(content, url)
         logger.info("Analiz için içerik hazır: %s (%d kelime)", company_name, content.word_count)
 
         return CompanyAnalysis(
@@ -82,24 +78,3 @@ class ScrapingAnalysisService(AnalysisService):
                 ),
             ),
         )
-
-    @classmethod
-    def _company_name(cls, content: ScrapedContent, url: str) -> str:
-        if content.site_name:
-            return content.site_name.strip()
-
-        if content.title:
-            for sep in _TITLE_SEPARATORS:
-                if sep in content.title:
-                    candidate = content.title.split(sep)[0].strip()
-                    if candidate:
-                        return candidate
-            return content.title.strip()
-
-        return cls._derive_from_url(url)
-
-    @staticmethod
-    def _derive_from_url(url: str) -> str:
-        host = (urlparse(url).hostname or url).removeprefix("www.")
-        base = host.split(".")[0] if "." in host else host
-        return base.replace("-", " ").replace("_", " ").title() or "Bilinmeyen Şirket"

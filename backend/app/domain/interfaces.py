@@ -11,7 +11,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from app.domain.models import CompanyAnalysis, ScrapedContent
+from app.domain.models import (
+    CompanyAnalysis,
+    CompanyInsights,
+    CompanySignals,
+    LeadScore,
+    ScrapedContent,
+)
 
 
 class AnalysisService(ABC):
@@ -39,4 +45,46 @@ class WebScraper(ABC):
 
     @abstractmethod
     async def scrape(self, url: str) -> ScrapedContent:
+        raise NotImplementedError
+
+
+class LLMProvider(ABC):
+    """Sağlayıcıdan bağımsız LLM erişim sözleşmesi (port).
+
+    Üst katman hangi LLM'in (Claude/Gemini/OpenAI) kullanıldığını bilmez. Bu
+    sayede sağlayıcı, somut implementasyon değiştirilerek takas edilebilir.
+    """
+
+    @abstractmethod
+    async def extract_structured(
+        self,
+        *,
+        system: str,
+        prompt: str,
+        schema: dict,
+        tool_name: str,
+        tool_description: str,
+    ) -> dict:
+        """Verilen JSON şemasına uyan yapılandırılmış bir sözlük döndürür."""
+        raise NotImplementedError
+
+
+class CompanyInsightAnalyzer(ABC):
+    """Çekilen içerikten `CompanyInsights` üreten analizci sözleşmesi."""
+
+    @abstractmethod
+    async def analyze(self, content: ScrapedContent) -> CompanyInsights:
+        raise NotImplementedError
+
+
+class ScoringEngine(ABC):
+    """Sinyallerden lead skoru üreten motor sözleşmesi.
+
+    Senkron ve yan etkisizdir (saf hesap). Sprint 3'te kural tabanlı bir
+    implementasyon gelir; aynı arayüz ileride XGBoost/LightGBM tabanlı bir
+    motorla değiştirilebilir (kullanıcının şartı).
+    """
+
+    @abstractmethod
+    def score(self, signals: CompanySignals) -> LeadScore:
         raise NotImplementedError

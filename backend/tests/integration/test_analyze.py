@@ -22,8 +22,10 @@ from app.domain.models import (
     LeadTier,
     ScoreReason,
 )
+from app.application.llm_analysis_service import LLMAnalysisService
+from app.application.rule_based_scoring_engine import RuleBasedScoringEngine
 from app.main import create_app
-from tests.factories import FakeScraper, make_scraped_content
+from tests.factories import FakeAnalyzer, FakeScraper, make_scraped_content
 
 
 @pytest.fixture
@@ -61,6 +63,32 @@ def test_analyze_happy_path(client_with_fake_scraper: TestClient) -> None:
     assert body["scraped"]["renderer"] == "static"
     assert body["scraped"]["word_count"] > 0
     assert body["scraped"]["content_preview"]
+
+
+def test_analyze_llm_pipeline_returns_real_analysis(settings) -> None:
+    """Sprint 3: LLM pipeline (sahte scraper + analyzer) gerçek analiz döndürür."""
+    content = make_scraped_content(site_name="Acme Corp", text="Acme bulut. " * 30)
+    service = LLMAnalysisService(
+        FakeScraper(content),
+        FakeAnalyzer(),
+        RuleBasedScoringEngine(),
+    )
+
+    app = create_app(settings=settings)
+    app.dependency_overrides[get_analysis_service] = lambda: service
+    client = TestClient(app)
+
+    response = client.post("/analyze", json={"url": "https://www.acme-corp.com"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["meta"]["is_stub"] is False
+    assert body["company_name"] == "Acme Corp"
+    assert body["summary"] == "Örnek şirket özeti."
+    assert body["pain_points"]
+    assert body["signals"]["sector"] == "SaaS"
+    assert 0 <= body["lead_score"]["value"] <= 100
+    assert body["lead_score"]["tier"] in {"hot", "warm", "cold"}
 
 
 def test_analyze_rejects_invalid_url(client: TestClient) -> None:
