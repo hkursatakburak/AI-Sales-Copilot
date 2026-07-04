@@ -13,6 +13,7 @@ env/
 
 # --- Ortam / sırlar ---
 .env
+.envv
 *.local
 
 # --- İşletim sistemi / editör ---
