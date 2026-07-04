@@ -74,23 +74,37 @@ class ScrapedContentSchema(BaseModel):
     fetched_at: datetime
 
     # Önizlemeyi makul bir uzunlukta tutarız; tam metin yanıtı şişirmesin.
-    # ClassVar: bu bir model alanı değil, sabittir.
+    # ClassVar: bunlar model alanı değil, sabittir.
     PREVIEW_CHARS: ClassVar[int] = 320
 
     @classmethod
     def from_domain(cls, content: ScrapedContent) -> "ScrapedContentSchema":
-        preview = content.text[: cls.PREVIEW_CHARS]
-        if len(content.text) > cls.PREVIEW_CHARS:
-            preview += "…"
         return cls(
             title=content.title,
             site_name=content.site_name,
             meta_description=content.meta_description,
             word_count=content.word_count,
             renderer=content.renderer,
-            content_preview=preview,
+            content_preview=cls._build_preview(content),
             fetched_at=content.fetched_at,
         )
+
+    @classmethod
+    def _build_preview(cls, content: ScrapedContent) -> str:
+        """Okunabilir önizleme: sitenin kendi meta açıklaması, yoksa kelime
+        sınırında kırpılmış anlamlı bir alıntı."""
+        desc = (content.meta_description or "").strip()
+        if 40 <= len(desc) <= cls.PREVIEW_CHARS:
+            return desc
+
+        text = content.text.strip()
+        if len(text) <= cls.PREVIEW_CHARS:
+            return text
+        # Kelimeyi ortadan bölmemek için son boşluğa kadar kırp.
+        cut = text[: cls.PREVIEW_CHARS]
+        if " " in cut:
+            cut = cut[: cut.rfind(" ")]
+        return cut + "…"
 
 
 class SignalsSchema(BaseModel):

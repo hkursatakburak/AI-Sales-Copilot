@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AI Sales Copilot",
-  "version": "0.4.0",
-  "description": "Aktif sekmedeki şirketi analiz eden satış asistanı (Sprint 4: cold email + pitch).",
+  "version": "0.5.0",
+  "description": "Aktif sekmedeki şirketi analiz eden satış asistanı (AI Sales Copilot).",
   "permissions": ["activeTab"],
   "host_permissions": ["http://localhost:8000/*"],
   "action": {

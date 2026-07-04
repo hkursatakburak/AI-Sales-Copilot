@@ -79,6 +79,8 @@ class ScrapedContent:
     word_count: int
     renderer: str  # "static" | "dynamic"
     fetched_at: datetime
+    # Akıllı öncelikle bulunan şirket adı adayı (JSON-LD/og/title/h1). Yoksa None.
+    detected_name: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

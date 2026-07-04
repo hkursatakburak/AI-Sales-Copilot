@@ -34,10 +34,13 @@ class PlaywrightScraper(WebScraper):
         *,
         timeout: float = 25.0,
         user_agent: str = "AISalesCopilotBot/0.1",
+        settle_timeout: float = 6.0,
     ):
         self._guard = guard
         self._timeout_ms = int(timeout * 1000)
         self._user_agent = user_agent
+        # JS/XHR yüklemelerinin oturması için ek (kısa) bekleme.
+        self._settle_ms = int(settle_timeout * 1000)
 
     async def scrape(self, url: str) -> ScrapedContent:
         self._guard.validate(url)
@@ -62,9 +65,19 @@ class PlaywrightScraper(WebScraper):
                         extra_http_headers=_extra_headers(self._user_agent),
                     )
                     page = await context.new_page()
+                    # Önce DOM hazır olsun (ilk render), sonra JS/XHR yüklemelerinin
+                    # oturmasını bekle. networkidle çoğu SPA'da gerçek içeriği yakalar
+                    # ama bazı sitelerde hiç boşa çıkmaz — o yüzden ayrı, kısa bir
+                    # bekleme ile sarılıp zaman aşımı yutulur (eldeki içerik yeterli).
                     await page.goto(
                         url, timeout=self._timeout_ms, wait_until="domcontentloaded"
                     )
+                    try:
+                        await page.wait_for_load_state(
+                            "networkidle", timeout=self._settle_ms
+                        )
+                    except PlaywrightTimeoutError:
+                        logger.info("networkidle beklenemedi, mevcut içerik alınıyor: %s", url)
                     html = await page.content()
                 finally:
                     await browser.close()

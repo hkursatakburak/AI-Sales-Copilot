@@ -34,8 +34,9 @@ async def test_analyze_attaches_scraped_content() -> None:
 
 
 @pytest.mark.asyncio
-async def test_company_name_prefers_site_name() -> None:
-    content = make_scraped_content(site_name="Acme A.Ş.", title="Acme | Anasayfa")
+async def test_uses_detected_name_when_present() -> None:
+    # Akıllı ad çıkarımı html_cleaner'da yapılır; servis detected_name'i kullanır.
+    content = make_scraped_content(detected_name="Acme A.Ş.")
     service = ScrapingAnalysisService(FakeScraper(content))
 
     result = await service.analyze("https://acme.com")
@@ -43,17 +44,8 @@ async def test_company_name_prefers_site_name() -> None:
 
 
 @pytest.mark.asyncio
-async def test_company_name_falls_back_to_title_prefix() -> None:
-    content = make_scraped_content(site_name=None, title="Acme Corp | Anasayfa")
-    service = ScrapingAnalysisService(FakeScraper(content))
-
-    result = await service.analyze("https://acme.com")
-    assert result.company_name == "Acme Corp"
-
-
-@pytest.mark.asyncio
 async def test_company_name_falls_back_to_domain() -> None:
-    content = make_scraped_content(site_name=None, title=None)
+    content = make_scraped_content(detected_name=None)
     service = ScrapingAnalysisService(FakeScraper(content))
 
     result = await service.analyze("https://big-data.io/products")

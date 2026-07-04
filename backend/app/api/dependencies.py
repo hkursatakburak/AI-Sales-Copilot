@@ -21,7 +21,7 @@ from app.application.scraping_analysis_service import ScrapingAnalysisService
 from app.core.config import get_settings
 from app.domain.interfaces import AnalysisService, WebScraper
 from app.domain.models import SellerProfile
-from app.infrastructure.llm.claude_provider import ClaudeLLMProvider
+from app.infrastructure.llm.factory import create_llm_provider
 from app.infrastructure.scraping.beautifulsoup_scraper import BeautifulSoupScraper
 
 logger = logging.getLogger(__name__)
@@ -52,6 +52,7 @@ def get_web_scraper() -> WebScraper:
         guard,
         timeout=settings.scraper_timeout_seconds * 2,
         user_agent=settings.scraper_user_agent,
+        settle_timeout=settings.scraper_settle_timeout_seconds,
     )
     return HybridScraper(
         static_scraper,
@@ -75,19 +76,14 @@ def get_analysis_service() -> AnalysisService:
         else None
     )
 
-    if not settings.anthropic_api_key:
+    provider = create_llm_provider(settings)
+    if provider is None:
         logger.warning(
-            "ANTHROPIC API anahtarı yok — LLM devre dışı, scraping-only moda "
-            "düşülüyor (is_stub=True). COPILOT_ANTHROPIC_API_KEY ayarlayın."
+            "LLM devre dışı (sağlayıcı/anahtar yok) — scraping-only moda düşülüyor "
+            "(is_stub=True). LLM_PROVIDER ve ilgili API anahtarını ayarlayın."
         )
         return ScrapingAnalysisService(get_web_scraper(), robots_checker=robots_checker)
 
-    provider = ClaudeLLMProvider(
-        settings.anthropic_api_key,
-        model=settings.llm_model,
-        max_tokens=settings.llm_max_tokens,
-        timeout=settings.llm_timeout_seconds,
-    )
     analyzer = LLMCompanyInsightAnalyzer(
         provider, max_input_chars=settings.llm_max_input_chars
     )

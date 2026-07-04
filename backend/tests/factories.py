@@ -26,6 +26,7 @@ def make_scraped_content(
     text: str = "örnek metin içeriği",
     word_count: int | None = None,
     renderer: str = "static",
+    detected_name: str | None = None,
 ) -> ScrapedContent:
     return ScrapedContent(
         url=url,
@@ -37,6 +38,7 @@ def make_scraped_content(
         word_count=word_count if word_count is not None else len(text.split()),
         renderer=renderer,
         fetched_at=datetime.now(timezone.utc),
+        detected_name=detected_name,
     )
 
 

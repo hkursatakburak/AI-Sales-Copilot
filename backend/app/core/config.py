@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,6 +28,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
+        populate_by_name=True,  # alan adıyla da (testlerde) doldurulabilsin
     )
 
     # --- Genel ---
@@ -53,6 +55,8 @@ class Settings(BaseSettings):
     # Statik çekimden sonra metin bu kelime sayısının altındaysa, içeriğin JS ile
     # yüklendiği varsayılır ve Playwright (dinamik) yedeğe geçilir.
     scraper_min_words_for_dynamic: int = 120
+    # Dinamik (Playwright) modda JS/XHR yüklemelerinin oturması için ek bekleme.
+    scraper_settle_timeout_seconds: float = 6.0
     # Geçici hatalarda (timeout/bağlantı) yeniden deneme sayısı ve backoff.
     scraper_max_retries: int = 2
     scraper_retry_backoff_seconds: float = 0.5
@@ -65,13 +69,35 @@ class Settings(BaseSettings):
     # robots.txt'e saygı göster (etik scraping).
     scraper_respect_robots: bool = True
 
-    # --- LLM (Sprint 3) ---
-    # Anahtar yoksa sistem zarif şekilde Sprint 2 davranışına (scraping-only,
-    # is_stub=True) düşer; uygulama yine çalışır.
-    anthropic_api_key: str | None = None
+    # --- LLM sağlayıcı seçimi (Final Polish) ---
+    # LLM_PROVIDER=claude | gemini  (tek satırla sağlayıcı değişir, başka kod
+    # değişikliği gerekmez). Standart env adları da desteklenir.
+    llm_provider: str = Field(
+        default="claude",
+        validation_alias=AliasChoices("LLM_PROVIDER", "COPILOT_LLM_PROVIDER"),
+    )
+
+    # --- Claude ---
+    # Seçili sağlayıcının anahtarı yoksa sistem zarif şekilde scraping-only
+    # (is_stub=True) davranışına düşer; uygulama yine çalışır.
+    anthropic_api_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("ANTHROPIC_API_KEY", "COPILOT_ANTHROPIC_API_KEY"),
+    )
     # Varsayılan model: en yetenekli Opus. Maliyet için Sonnet'e geçmek isterseniz:
     #   COPILOT_LLM_MODEL=claude-sonnet-4-6   (~%40 daha ucuz, bu görevlere uygun)
     llm_model: str = "claude-opus-4-8"
+
+    # --- Gemini (Google AI Studio — ücretsiz kota) ---
+    gemini_api_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "GEMINI_API_KEY", "GOOGLE_API_KEY", "COPILOT_GEMINI_API_KEY"
+        ),
+    )
+    gemini_model: str = "gemini-2.5-flash"
+
+    # --- Ortak LLM ayarları ---
     llm_max_tokens: int = 2048
     llm_timeout_seconds: float = 60.0
     # LLM'e gönderilen metin bu karakter sayısında kırpılır (context-stuffing /

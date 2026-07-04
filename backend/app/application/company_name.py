@@ -1,6 +1,8 @@
 """Çekilen içerikten şirket adı türetme (paylaşılan yardımcı).
 
-Hem Sprint 2 (scraping-only) hem Sprint 3 (LLM) servisleri aynı kuralı kullanır.
+Akıllı çıkarımın (JSON-LD > og:site_name > og:title > title > h1) çoğu
+`html_cleaner` içinde yapılır ve `ScrapedContent.detected_name` olarak taşınır.
+Burada yalnızca son adım kalır: tespit edilen ad yoksa alan adına (domain) düş.
 """
 
 from __future__ import annotations
@@ -9,21 +11,10 @@ from urllib.parse import urlparse
 
 from app.domain.models import ScrapedContent
 
-_TITLE_SEPARATORS = ("|", "—", "–", "-", "·", ":", "•")
-
 
 def derive_company_name(content: ScrapedContent, url: str) -> str:
-    if content.site_name:
-        return content.site_name.strip()
-
-    if content.title:
-        for sep in _TITLE_SEPARATORS:
-            if sep in content.title:
-                candidate = content.title.split(sep)[0].strip()
-                if candidate:
-                    return candidate
-        return content.title.strip()
-
+    if content.detected_name:
+        return content.detected_name.strip()
     return _derive_from_url(url)
 
 

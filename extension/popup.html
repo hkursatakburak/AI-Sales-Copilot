@@ -25,10 +25,6 @@
 
       <!-- Sonuç paneli -->
       <section id="result" class="result hidden">
-        <div id="stub-banner" class="stub-banner hidden">
-          ⚠️ İskelet (Sprint 1) verisi — gerçek analiz değil.
-        </div>
-
         <div class="card">
           <h2>Şirket</h2>
           <p id="company-name"></p>
@@ -43,7 +39,31 @@
           <p id="content-preview" class="preview"></p>
         </div>
 
-        <div class="card">
+        <!-- AI kapalı durumu (profesyonel bilgilendirme) -->
+        <div id="ai-status" class="ai-status hidden">
+          <div class="ai-status-head">🤖 AI Analizi</div>
+          <p class="ai-status-lead">
+            API anahtarı bulunamadığı için AI analizi üretilemedi.
+          </p>
+          <ul class="ai-status-ok">
+            <li>Web scraping başarıyla tamamlandı</li>
+            <li>Şirket bilgileri başarıyla alındı</li>
+          </ul>
+          <p class="ai-status-note">
+            Bir Gemini (ücretsiz kota), Claude veya OpenAI API anahtarı
+            eklendiğinde şunlar otomatik üretilir:
+          </p>
+          <div class="ai-status-chips">
+            <span class="chip">Şirket özeti</span>
+            <span class="chip">Lead skoru</span>
+            <span class="chip">Acı noktaları</span>
+            <span class="chip">Soğuk e-posta</span>
+            <span class="chip">Toplantı pitch'i</span>
+          </div>
+        </div>
+
+        <!-- AI'ya bağlı kartlar: anahtar yoksa gizlenir -->
+        <div class="card ai-card">
           <div class="card-head">
             <h2>Lead Skoru</h2>
             <span id="lead-score" class="score-badge"></span>
@@ -51,22 +71,22 @@
           <ul id="score-reasons" class="reasons"></ul>
         </div>
 
-        <div class="card">
+        <div class="card ai-card">
           <h2>Özet</h2>
           <p id="summary"></p>
         </div>
 
-        <div class="card">
+        <div class="card ai-card">
           <h2>Acı Noktaları</h2>
           <ul id="pain-points"></ul>
         </div>
 
-        <div class="card" id="signals-card">
+        <div class="card ai-card" id="signals-card">
           <h2>Sinyaller</h2>
           <div id="signals" class="signals"></div>
         </div>
 
-        <div class="card">
+        <div class="card ai-card">
           <div class="card-head">
             <h2>Soğuk E-posta</h2>
             <div class="btn-group">
@@ -77,7 +97,7 @@
           <pre id="cold-email" class="text-block"></pre>
         </div>
 
-        <div class="card">
+        <div class="card ai-card">
           <div class="card-head">
             <h2>Toplantı Sunumu</h2>
             <button class="copy-btn" data-copy-target="pitch">Kopyala</button>

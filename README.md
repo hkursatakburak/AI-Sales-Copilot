@@ -53,14 +53,21 @@ pip install -r requirements-dev.txt
 # (Opsiyonel) Dinamik (JS) scraping için tarayıcı ikilisini kur:
 playwright install chromium
 
-# LLM (Sprint 3) için Claude API anahtarını ayarla:
-export COPILOT_ANTHROPIC_API_KEY=sk-ant-...
-# (İsteğe bağlı) maliyet için daha ucuz modele geç:
-# export COPILOT_LLM_MODEL=claude-sonnet-4-6
+# LLM sağlayıcısını seç ve anahtarını ver (ikisinden biri yeter):
+#   Ücretsiz Gemini (Google AI Studio):
+export LLM_PROVIDER=gemini
+export GEMINI_API_KEY=...              # https://aistudio.google.com/apikey
+#   veya Claude:
+# export LLM_PROVIDER=claude
+# export ANTHROPIC_API_KEY=sk-ant-...
 
 # Sunucuyu çalıştır
 uvicorn app.main:app --reload --port 8000
 ```
+
+> **Sağlayıcı değiştirmek için tek satır yeter:** `LLM_PROVIDER=claude` ↔
+> `LLM_PROVIDER=gemini`. Kodun geri kalanı değişmez (provider-agnostic factory).
+> OpenAI mimaride açık; ileride kolayca eklenebilir.
 
 > **Zarif düşüş:** Playwright kurulmazsa statik scraping çalışmaya devam eder.
 > **API anahtarı yoksa** sistem scraping-only moda düşer (özet/skor üretilmez,
@@ -68,10 +75,11 @@ uvicorn app.main:app --reload --port 8000
 
 ## LLM ve Lead Scoring (Sprint 3)
 
-- **LLM (Claude):** Yalnızca dil/çıkarım işleri — şirket özeti, acı noktaları ve
-  yapılandırılmış **sinyal çıkarımı** (sektör, işe alım, büyüme, teknoloji).
-  Tek bir yapılandırılmış çağrı (forced tool use) ile üçü birden alınır.
-  Varsayılan model `claude-opus-4-8`; `COPILOT_LLM_MODEL` ile değiştirilebilir.
+- **LLM (Claude veya Gemini):** Yalnızca dil/çıkarım işleri — şirket özeti, acı
+  noktaları ve yapılandırılmış **sinyal çıkarımı** (sektör, işe alım, büyüme,
+  teknoloji). `LLMProvider` portu ardında iki gerçek implementasyon var:
+  `ClaudeLLMProvider` (forced tool use) ve `GeminiLLMProvider` (JSON modu).
+  `LLM_PROVIDER` ile seçilir; kalan kod değişmez.
 - **Lead Scoring:** **Kural tabanlı ve açıklanabilir** (Explainable AI) — makine
   öğrenmesi yok. LLM sadece sinyalleri çıkarır; puanı deterministik kural motoru
   verir ve her puanın gerekçesini (`reasons`) döndürür. Mimari, ileride aynı

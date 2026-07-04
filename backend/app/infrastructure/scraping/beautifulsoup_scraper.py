@@ -61,6 +61,7 @@ class BeautifulSoupScraper(WebScraper):
         max_retries: int = 2,
         retry_backoff: float = 0.5,
         rate_limiter: HostRateLimiter | None = None,
+        max_html_chars: int = 1_500_000,
         transport: httpx.BaseTransport | None = None,
     ):
         self._guard = guard
@@ -69,6 +70,8 @@ class BeautifulSoupScraper(WebScraper):
         self._max_retries = max_retries
         self._retry_backoff = retry_backoff
         self._rate_limiter = rate_limiter
+        # Aşırı büyük sayfaların ayrıştırma maliyetini/DoS riskini sınırla.
+        self._max_html_chars = max_html_chars
         self._transport = transport  # yalnızca testlerde doldurulur
 
     async def scrape(self, url: str) -> ScrapedContent:
@@ -78,7 +81,8 @@ class BeautifulSoupScraper(WebScraper):
             await self._rate_limiter.acquire(url)
 
         response = await self._fetch_with_retries(url)
-        document = clean_html(response.text)
+        html = response.text[: self._max_html_chars]
+        document = clean_html(html)
         content = build_scraped_content(url, document, renderer="static")
         logger.info("Statik scrape tamam: %s (%d kelime)", url, content.word_count)
         return content

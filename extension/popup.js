@@ -14,7 +14,8 @@ const els = {
   loading: document.getElementById("loading"),
   error: document.getElementById("error"),
   result: document.getElementById("result"),
-  stubBanner: document.getElementById("stub-banner"),
+  aiStatus: document.getElementById("ai-status"),
+  aiCards: document.querySelectorAll(".ai-card"),
   companyName: document.getElementById("company-name"),
   scrapeBadge: document.getElementById("scrape-badge"),
   scrapeMeta: document.getElementById("scrape-meta"),
@@ -149,15 +150,22 @@ function renderSignals(signals) {
 }
 
 function renderResult(data) {
-  els.stubBanner.classList.toggle("hidden", !data.meta?.is_stub);
   els.companyName.textContent = data.company_name ?? "—";
   renderScraped(data.scraped);
-  renderSignals(data.signals);
-  els.summary.textContent = data.summary;
-  els.coldEmail.textContent = data.cold_email;
-  els.pitch.textContent = data.pitch;
-  renderList(els.painPoints, data.pain_points);
-  renderScore(data.lead_score);
+
+  const aiOff = Boolean(data.meta?.is_stub);
+  // AI kapalıysa: profesyonel bilgi ekranı göster, AI'ya bağlı kartları gizle.
+  els.aiStatus.classList.toggle("hidden", !aiOff);
+  for (const card of els.aiCards) card.classList.toggle("hidden", aiOff);
+
+  if (!aiOff) {
+    renderSignals(data.signals);
+    els.summary.textContent = data.summary;
+    els.coldEmail.textContent = data.cold_email;
+    els.pitch.textContent = data.pitch;
+    renderList(els.painPoints, data.pain_points);
+    renderScore(data.lead_score);
+  }
   show(els.result);
 }
 

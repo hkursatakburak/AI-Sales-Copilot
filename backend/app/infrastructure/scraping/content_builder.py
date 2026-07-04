@@ -22,4 +22,5 @@ def build_scraped_content(url: str, doc: CleanedDocument, renderer: str) -> Scra
         word_count=len(doc.text.split()),
         renderer=renderer,
         fetched_at=datetime.now(timezone.utc),
+        detected_name=doc.company_name,
     )
