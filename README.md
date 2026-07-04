@@ -67,7 +67,7 @@
 - **Daily Scrum**: Daily Scrum toplantılarının WhatsApp üzerinden yapılması kararlaştırılmıştır. Daily Scrum toplantılarımız Imgur'da toplanmıştır: [Sprint 1 - Daily Scrum Chats](Buraya_Imgur_Linkini_Ekle)
 
 - **Sprint board update**: Sprint board screenshot: 
-![Backlog 1](https://github.com/hkursatakburak/AI-Sales-Copilot/blob/main/trello.png)[cite: 2]
+![Backlog 1](readme_images/trello.png)[cite: 2]
 
 <details> <summary><h3>Ürün Durumu: Ekran Görüntüleri</h3></summary>
   
