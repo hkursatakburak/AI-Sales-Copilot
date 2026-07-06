@@ -69,7 +69,7 @@ uvicorn app.main:app --reload --port 8000
 > `LLM_PROVIDER=gemini`. Kodun geri kalanı değişmez (provider-agnostic factory).
 > OpenAI mimaride açık; ileride kolayca eklenebilir.
 
-> **Zarif düşüş:** Playwright kurulmazsa statik scraping çalışmaya devam eder.
+> **Not : Eksik Kurulumda :** Playwright kurulmazsa statik scraping çalışmaya devam eder.
 > **API anahtarı yoksa** sistem scraping-only moda düşer (özet/skor üretilmez,
 > `is_stub: true`) — uygulama yine çalışır.
 
