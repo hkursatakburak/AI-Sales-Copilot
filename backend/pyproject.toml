@@ -1,0 +1,8 @@
+# Bu dosya paketleme için değil, yalnızca araç (pytest) yapılandırması içindir.
+[tool.pytest.ini_options]
+# `app` paketinin import edilebilmesi için backend kökünü yola ekler.
+pythonpath = ["."]
+testpaths = ["tests"]
+# Async testleri `@pytest.mark.asyncio` ile otomatik çalıştır.
+asyncio_mode = "auto"
+addopts = "-ra -q"

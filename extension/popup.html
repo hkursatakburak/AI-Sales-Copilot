@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>AI Sales Copilot</title>
+  </head>
+  <body>
+    <header class="header">
+      <h1>AI Sales Copilot</h1>
+      <p id="current-url" class="current-url">Sekme okunuyor…</p>
+    </header>
+
+    <main>
+      <button id="analyze-btn" class="primary-btn">Bu şirketi analiz et</button>
+
+      <!-- Yükleniyor durumu -->
+      <div id="loading" class="loading hidden">
+        <span class="spinner"></span> Analiz ediliyor…
+      </div>
+
+      <!-- Hata durumu -->
+      <div id="error" class="error hidden"></div>
+
+      <!-- Sonuç paneli -->
+      <section id="result" class="result hidden">
+        <div class="card">
+          <h2>Şirket</h2>
+          <p id="company-name"></p>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Çekilen İçerik</h2>
+            <span id="scrape-badge" class="renderer-badge"></span>
+          </div>
+          <p id="scrape-meta" class="scrape-meta"></p>
+          <p id="content-preview" class="preview"></p>
+        </div>
+
+        <!-- AI kapalı durumu (profesyonel bilgilendirme) -->
+        <div id="ai-status" class="ai-status hidden">
+          <div class="ai-status-head">🤖 AI Analizi</div>
+          <p class="ai-status-lead">
+            API anahtarı bulunamadığı için AI analizi üretilemedi.
+          </p>
+          <ul class="ai-status-ok">
+            <li>Web scraping başarıyla tamamlandı</li>
+            <li>Şirket bilgileri başarıyla alındı</li>
+          </ul>
+          <p class="ai-status-note">
+            Bir Gemini (ücretsiz kota), Claude veya OpenAI API anahtarı
+            eklendiğinde şunlar otomatik üretilir:
+          </p>
+          <div class="ai-status-chips">
+            <span class="chip">Şirket özeti</span>
+            <span class="chip">Lead skoru</span>
+            <span class="chip">Acı noktaları</span>
+            <span class="chip">Soğuk e-posta</span>
+            <span class="chip">Toplantı pitch'i</span>
+          </div>
+        </div>
+
+        <!-- AI'ya bağlı kartlar: anahtar yoksa gizlenir -->
+        <div class="card ai-card">
+          <div class="card-head">
+            <h2>Lead Skoru</h2>
+            <span id="lead-score" class="score-badge"></span>
+          </div>
+          <ul id="score-reasons" class="reasons"></ul>
+        </div>
+
+        <div class="card ai-card">
+          <h2>Özet</h2>
+          <p id="summary"></p>
+        </div>
+
+        <div class="card ai-card">
+          <h2>Acı Noktaları</h2>
+          <ul id="pain-points"></ul>
+        </div>
+
+        <div class="card ai-card" id="signals-card">
+          <h2>Sinyaller</h2>
+          <div id="signals" class="signals"></div>
+        </div>
+
+        <div class="card ai-card">
+          <div class="card-head">
+            <h2>Soğuk E-posta</h2>
+            <div class="btn-group">
+              <button id="regenerate-btn" class="copy-btn">↻ Yeniden üret</button>
+              <button class="copy-btn" data-copy-target="cold-email">Kopyala</button>
+            </div>
+          </div>
+          <pre id="cold-email" class="text-block"></pre>
+        </div>
+
+        <div class="card ai-card">
+          <div class="card-head">
+            <h2>Toplantı Sunumu</h2>
+            <button class="copy-btn" data-copy-target="pitch">Kopyala</button>
+          </div>
+          <pre id="pitch" class="text-block"></pre>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modül değil: basitlik için global script sırası. config önce yüklenmeli. -->
+    <script src="config.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

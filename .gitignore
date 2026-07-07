@@ -1,25 +1,22 @@
-# Python
+# --- Python ---
 __pycache__/
 *.py[cod]
-*$py.class
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- Sanal ortam ---
 .venv/
 venv/
-ENV/
 env/
+
+# --- Ortam / sırlar ---
 .env
-.env.local
+.envv
+*.local
 
-# IDEs/Editors
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.swp
-
-# OS
-Thumbs.db
-db.db
-Desktop.ini
+# --- İşletim sistemi / editör ---
 .DS_Store
+.idea/
+.vscode/
