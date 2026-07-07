@@ -58,9 +58,18 @@ function clearFeedback() {
 
 // Aktif sekmenin URL'sini alır. activeTab izni, kullanıcı eklentiyi
 // çalıştırdığında bu erişimi geçici olarak verir.
+// Test ve demo amacıyla URL parametresi (?url=...) desteği eklendi.
 async function getActiveTabUrl() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  return tab?.url ?? null;
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramUrl = urlParams.get("url");
+  if (paramUrl) {
+    return paramUrl;
+  }
+  if (typeof chrome !== "undefined" && chrome.tabs && chrome.tabs.query) {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    return tab?.url ?? null;
+  }
+  return null;
 }
 
 // Backend'e analiz isteği atar. Hata durumunda anlamlı bir Error fırlatır.

@@ -32,7 +32,16 @@ class HybridScraper(WebScraper):
         self._min_words = min_words
 
     async def scrape(self, url: str) -> ScrapedContent:
-        static_content = await self._static.scrape(url)
+        try:
+            static_content = await self._static.scrape(url)
+        except ScrapeError as static_exc:
+            logger.info(
+                "Statik scrape hata verdi (%s), dinamik yedeğe geçiliyor: %s",
+                static_exc,
+                url,
+            )
+            # Statik hata verdiğinde dinamiği dene. O da hata verirse fırlat.
+            return await self._dynamic.scrape(url)
 
         if static_content.word_count >= self._min_words:
             return static_content

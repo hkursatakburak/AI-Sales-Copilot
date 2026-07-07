@@ -43,6 +43,10 @@ def create_llm_provider(settings: Settings) -> LLMProvider | None:
             max_tokens=settings.llm_max_tokens,
         )
 
+    if provider == "demo":
+        from app.infrastructure.llm.demo_provider import DemoLLMProvider
+        return DemoLLMProvider()
+
     # OpenAI ileride buraya eklenecek (OCP): mimari açık, implementasyon henüz yok.
-    logger.error("Bilinmeyen LLM_PROVIDER='%s' (claude|gemini). LLM devre dışı.", provider)
+    logger.error("Bilinmeyen LLM_PROVIDER='%s' (claude|gemini|demo). LLM devre dışı.", provider)
     return None

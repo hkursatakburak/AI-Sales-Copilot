@@ -10,10 +10,10 @@
 
 |    | <div align="center">Name</div>   | <div align="center">Title</div>  | <div align="center">Socials</div>     |
 | :-----------: | :---------- | :---------- | :----------: |
-|  ![ElifgülPhoto](https://via.placeholder.com/100)  | Elifgül Topcu     | Product Owner     | [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](LinkedIn_Linkini_Buraya_Koy)    | 
-|  ![HamzaPhoto](https://via.placeholder.com/100)    | Hamza Kürşat Akburak     | Scrum Master     |  [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](https://www.linkedin.com/in/hkursat-akburak/) |
-|  ![AhmetPhoto](readme_images/224296809.png)  | Ahmet Bilal Özgün      | Developer      |  [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](https://linkedin.com/in/ahmetbilalozgun)   |
-|   ![MeryemPhoto](https://via.placeholder.com/100)   | Meryem Durdağı      | Developer     |   [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](LinkedIn_Linkini_Buraya_Koy)    |
+|  <img src="https://via.placeholder.com/100" width="100" height="100" alt="ElifgülPhoto" />  | Elifgül Topcu     | Product Owner     | [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](LinkedIn_Linkini_Buraya_Koy)    | 
+|  <img src="readme_images/hamza_pp.jpeg" width="100" height="100" alt="HamzaPhoto" />    | Hamza Kürşat Akburak     | Scrum Master     |  [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](https://www.linkedin.com/in/hkursat-akburak/) |
+|  <img src="readme_images/ahmet_pp.png" width="100" height="100" alt="AhmetPhoto" />  | Ahmet Bilal Özgün      | Developer      |  [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](https://linkedin.com/in/ahmetbilalozgun)   |
+|   <img src="https://via.placeholder.com/100" width="100" height="100" alt="MeryemPhoto" />   | Meryem Durdağı      | Developer     |   [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](LinkedIn_Linkini_Buraya_Koy)    |
 
 
 ## Ürün İsmi
@@ -64,22 +64,37 @@
 - **Puan tamamlama mantığı**: Proje boyunca tamamlanması gereken toplam 300 puanlık backlog bulunmaktadır. 3 sprinte bölündüğünde ilk sprintin 100 ile başlaması gerektiği kararlaştırıldı.
 - **Backlog düzeni ve Story seçimleri**: Backlog'umuz uygulamanın uçtan uca haberleşmesini sağlayacak temel MVP (Minimum Viable Product) mimarisinin kurulmasına odaklanmıştır. Sprint başına tahmin edilen puan sayısını geçmeyecek şekilde görevler dağıtılmıştır. Trello panomuzda mor etiketler _Backend_, turuncu etiketler _Frontend_, yeşil etiketler _Data Science_, pembe etiketler ise _AI / YZ_ görevlerini temsil etmektedir.
 
-- **Daily Scrum**: Daily Scrum toplantılarının WhatsApp üzerinden yapılması kararlaştırılmıştır. Daily Scrum toplantılarımız Imgur'da toplanmıştır: [Sprint 1 - Daily Scrum Chats](Buraya_Imgur_Linkini_Ekle)
+- **Daily Scrum**: Daily Scrum toplantılarının WhatsApp üzerinden yapılması kararlaştırılmıştır. Daily Scrum toplantılarımız Imgur'da toplanmıştır: [Sprint 1 - Daily Scrum Chats](https://imgur.com/a/daily-scrum-chats-1-V49yG8A)
 
 - **Sprint board update**: Sprint board screenshot: 
-![Backlog 1](readme_images/trello.png)[cite: 2]
+![Backlog 1](readme_images/trello.png)
 
-<details> <summary><h3>Ürün Durumu: Ekran Görüntüleri</h3></summary>
-  
-  ![Screenshot 1](Chrome_eklentisinin_veya_FastAPI_sayfasinin_resim_linkini_ekle)[cite: 2]
+- **Ürünün Durumu**:
 
-  </details>
+  Projemizin mevcut ve planlanan geliştirme süreçleri sprint bazlı olarak aşağıda detaylandırılmıştır. İlk sprint başarıyla tamamlanmış olup, sonraki aşamalar tahmini hedefler doğrultusunda planlanmıştır:
+
+  | Sprint | Durum | Ana Hedef | Kapsam | Tahmini Puan |
+  | :---: | :---: | :--- | :--- | :---: |
+  | **Sprint 1** | Tamamlandı | Çalışan MVP | Repository kurulumu, Temiz Mimari (Clean Architecture) tabanlı backend yapısı, FastAPI ile `/analyze` ve `/email` uç noktaları, BeautifulSoup ve Playwright entegrasyonu ile web kazıma çözümleri, Manifest V3 uyumlu Chrome eklentisi, Gemini entegrasyonu (özet, acı noktası ve sinyal tespiti), kural tabanlı potansiyel müşteri puanlaması (lead scoring) ve temel soğuk e-posta üretimi ile uçtan uca çalışan demo. | 100 |
+  | **Sprint 2** | Planlanan (Gerçekleşmedi) | Zenginleştirme ve Sağlamlık | Soğuk e-posta ve pitch kalitesinin artırılması (few-shot öğrenme ve doğal dil tonu), çoklu dil modeli desteği (Claude ve sağlayıcıdan bağımsız fabrika yapısı), web kazıma kararlılığı (SSRF koruması, robots.txt kurallarına uyum, yeniden deneme mekanizmaları, istek sınırlama ve kullanıcı dostu hata mesajları), kullanıcı deneyimi (UX) geliştirmeleri ve birim testleri. | 90 |
+  | **Sprint 3** | Planlanan (Gerçekleşmedi) | İleri Seviye Özellikler | RAG (Retrieval-Augmented Generation) ve vektör veri tabanı entegrasyonu, Apollo.io entegrasyonu ile veri zenginleştirme, çok sayfalı web kazıma, geçmişteki başarılı e-postalardan öğrenme yeteneği, önbellekleme mekanizmaları ve puanlama metriklerinin genişletilmesi. | 60 |
+  | **Sprint 4** | Planlanan (Gerçekleşmedi) | Ürünleştirme ve Sunum | Bulut sunuculara dağıtım (deployment), basit kimlik doğrulama (auth) yapısı, loglama ve izleme sistemleri, performans ile güvenlik incelemeleri, kullanıcı testleri, demo videosunun hazırlanması ve jüri sunumu (demo mimarisi ile canlı ortam mimarisinin karşılaştırılması). | 50 |
 
 - **Sprint Review**: 
-  - (Sprint bitiminde 5 Temmuz'da doldurulacaktır: Ekip projede nelerin bittiğini ve gidişatı değerlendirdi.)[cite: 2]
-  - Sprint Review katılımcıları: Hamza Kürşat Akburak, Elifgül Topçu, Meryem Durdağı, Ahmet Bilal Özgün.[cite: 2]
+  - (Sprint bitiminde 5 Temmuz'da doldurulacaktır: Ekip projede nelerin bittiğini ve gidişatı değerlendirdi.)
+  - Sprint Review katılımcıları: Hamza Kürşat Akburak, Elifgül Topcu, Meryem Durdağı, Ahmet Bilal Özgün.
 
 - **Sprint Retrospective:** 
-  - (Sprint bitiminde 5 Temmuz'da doldurulacaktır: Hangi konularda hızlanmamız gerektiği ve sonraki sprint'in rotası tartışıldı.)[cite: 2]
+  - (Sprint bitiminde 5 Temmuz'da doldurulacaktır: Hangi konularda hızlanmamız gerektiği ve sonraki sprint'in rotası tartışıldı.)
 
 ---
+
+### Ürünün Durumu ve Tanıtım Görselleri
+
+Uygulamanın çalışma akışını ve arayüzünü gösteren hareketli ekran görüntüleri (GIF) aşağıda yer almaktadır:
+
+![Uygulama Akışı 1](readme_images/uygulama_g1.gif)
+
+![Uygulama Akışı 2](readme_images/uygulama_g2.gif)
+
+![Uygulama Akışı 3](readme_images/uygulama_g3.gif)
