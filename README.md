@@ -4,7 +4,7 @@
 
 ## **Takım Logosu**
 
-![Logo](Buraya_logonuzun_linkini_ekleyin_örneğin_imgur_linki)[cite: 2]
+![Logo](readme_images/OyunLogo.png)[cite: 2]
 
 ## Takım Elemanları
 
@@ -22,7 +22,7 @@
 
 ## Ürün Logosu
 
-![OyunLogo](Logo_linki_buraya) ![TextLogo](Yazi_logo_linki_buraya)
+![OyunLogo](readme_images/OyunLogo.png)
 
 ## Ürün Açıklaması
 
