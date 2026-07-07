@@ -12,7 +12,7 @@
 | :-----------: | :---------- | :---------- | :----------: |
 |  ![ElifgülPhoto](https://via.placeholder.com/100)  | Elifgül Topcu     | Product Owner     | [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](LinkedIn_Linkini_Buraya_Koy)    | 
 |  ![HamzaPhoto](https://via.placeholder.com/100)    | Hamza Kürşat Akburak     | Scrum Master     |  [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](https://www.linkedin.com/in/hkursat-akburak/) |
-|  ![AhmetPhoto](https://via.placeholder.com/100)  | Ahmet Bilal Özgün      | Developer      |  [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](LinkedIn_Linkini_Buraya_Koy)   |
+|  ![AhmetPhoto](readme_images/224296809)  | Ahmet Bilal Özgün      | Developer      |  [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](https://linkedin.com/in/ahmetbilalozgun)   |
 |   ![MeryemPhoto](https://via.placeholder.com/100)   | Meryem Durdağı      | Developer     |   [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](LinkedIn_Linkini_Buraya_Koy)    |
 
 
