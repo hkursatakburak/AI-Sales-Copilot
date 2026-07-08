@@ -10,7 +10,7 @@
 
 |    | <div align="center">Name</div>   | <div align="center">Title</div>  | <div align="center">Socials</div>     |
 | :-----------: | :---------- | :---------- | :----------: |
-|  <img src="https://via.placeholder.com/100" width="100" height="100" alt="ElifgülPhoto" />  | Elifgül Topcu     | Product Owner     | [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](https://www.linkedin.com/in/elifgültopcu/)    | 
+|  <img src="readme_images/elifgult.png" width="100" height="100" alt="ElifgülPhoto" />  | Elifgül Topcu     | Product Owner     | [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](https://www.linkedin.com/in/elifgültopcu/)    | 
 |  <img src="readme_images/hamza_pp.jpeg" width="100" height="100" alt="HamzaPhoto" />    | Hamza Kürşat Akburak     | Scrum Master     |  [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](https://www.linkedin.com/in/hkursat-akburak/) |
 |  <img src="readme_images/ahmet_pp.png" width="100" height="100" alt="AhmetPhoto" />  | Ahmet Bilal Özgün      | Developer      |  [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](https://linkedin.com/in/ahmetbilalozgun)   |
 |   <img src="https://via.placeholder.com/100" width="100" height="100" alt="MeryemPhoto" />   | Meryem Durdağı      | Developer     |   [![linkedin](https://github.com/user-attachments/assets/3baa645a-33bc-4786-8327-cb0f92356f0a)](LinkedIn_Linkini_Buraya_Koy)    |
