@@ -102,7 +102,7 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 60.0
     # LLM'e gönderilen metin bu karakter sayısında kırpılır (context-stuffing /
     # RAG-lite; token maliyetini sınırlar). Tek sayfa için fazlasıyla yeterli.
-    llm_max_input_chars: int = 6000
+    llm_max_input_chars: int = 12000
     llm_email_max_tokens: int = 700
     llm_pitch_max_tokens: int = 700
 

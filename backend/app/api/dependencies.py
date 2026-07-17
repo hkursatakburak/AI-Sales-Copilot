@@ -27,6 +27,7 @@ from app.infrastructure.scraping.beautifulsoup_scraper import BeautifulSoupScrap
 
 logger = logging.getLogger(__name__)
 from app.infrastructure.scraping.hybrid_scraper import HybridScraper
+from app.infrastructure.scraping.multi_page_crawler import MultiPageCrawler
 from app.infrastructure.scraping.playwright_scraper import PlaywrightScraper
 from app.infrastructure.scraping.rate_limiter import HostRateLimiter
 from app.infrastructure.scraping.robots import RobotsChecker
@@ -55,11 +56,12 @@ def get_web_scraper() -> WebScraper:
         user_agent=settings.scraper_user_agent,
         settle_timeout=settings.scraper_settle_timeout_seconds,
     )
-    return HybridScraper(
+    hybrid = HybridScraper(
         static_scraper,
         dynamic_scraper,
         min_words=settings.scraper_min_words_for_dynamic,
     )
+    return MultiPageCrawler(hybrid, max_subpages=4)
 
 
 @lru_cache
