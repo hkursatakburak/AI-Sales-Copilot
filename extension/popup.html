@@ -9,10 +9,26 @@
   <body>
     <header class="header">
       <h1>AI Sales Copilot</h1>
-      <p id="current-url" class="current-url">Sekme okunuyor…</p>
+      <p id="current-url" class="current-url hidden">Sekme okunuyor…</p>
+      <button id="logout-btn" class="logout-btn hidden">Çıkış</button>
     </header>
 
-    <main>
+    <!-- Giriş ekranı — token yoksa gösterilir -->
+    <section id="login-view">
+      <p class="login-subtitle">Devam etmek için giriş yapın.</p>
+      <div class="field">
+        <label for="login-email">E-posta</label>
+        <input id="login-email" type="email" placeholder="ad@ornek.com" autocomplete="email" />
+      </div>
+      <div class="field">
+        <label for="login-password">Şifre</label>
+        <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <button id="login-btn" class="primary-btn">Giriş Yap</button>
+      <div id="login-error" class="error hidden"></div>
+    </section>
+
+    <main id="main-view" class="hidden">
       <button id="analyze-btn" class="primary-btn">Bu şirketi analiz et</button>
 
       <!-- Yükleniyor durumu -->

@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.dependencies import get_analysis_service
+from app.api.dependencies import get_analysis_service, get_cached_analysis_service
 from app.application.scraping_analysis_service import ScrapingAnalysisService
 from app.domain.interfaces import AnalysisService
 from app.domain.models import (
@@ -25,6 +25,7 @@ from app.domain.models import (
 from app.application.llm_analysis_service import LLMAnalysisService
 from app.application.rule_based_scoring_engine import RuleBasedScoringEngine
 from app.main import create_app
+from tests.conftest import make_test_app
 from tests.factories import (
     FakeAnalyzer,
     FakeOutreachWriter,
@@ -44,8 +45,9 @@ def client_with_fake_scraper(settings) -> TestClient:
     )
     service = ScrapingAnalysisService(FakeScraper(content))  # robots_checker yok
 
-    app = create_app(settings=settings)
+    app = make_test_app(settings)
     app.dependency_overrides[get_analysis_service] = lambda: service
+    app.dependency_overrides[get_cached_analysis_service] = lambda: service
     return TestClient(app)
 
 
@@ -80,8 +82,9 @@ def test_analyze_llm_pipeline_returns_real_analysis(settings) -> None:
         FakeOutreachWriter(),
     )
 
-    app = create_app(settings=settings)
+    app = make_test_app(settings)
     app.dependency_overrides[get_analysis_service] = lambda: service
+    app.dependency_overrides[get_cached_analysis_service] = lambda: service
     client = TestClient(app)
 
     response = client.post("/analyze", json={"url": "https://www.acme-corp.com"})
@@ -138,8 +141,10 @@ def test_analyze_uses_injected_service(settings) -> None:
                 ),
             )
 
-    app = create_app(settings=settings)
-    app.dependency_overrides[get_analysis_service] = lambda: FakeService()
+    fake = FakeService()
+    app = make_test_app(settings)
+    app.dependency_overrides[get_analysis_service] = lambda: fake
+    app.dependency_overrides[get_cached_analysis_service] = lambda: fake
     client = TestClient(app)
 
     response = client.post("/analyze", json={"url": "https://example.com"})

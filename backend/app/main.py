@@ -11,12 +11,15 @@ global durum (state) kaçaklarından kaçınılır.
 from __future__ import annotations
 
 import logging
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
 from app.api.routes import analyze, health
+from app.api.routes import auth as auth_routes
+from app.core.auth import get_current_user
 from app.core.config import Settings, get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
@@ -30,10 +33,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings.log_level)
 
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI):
+        from app.infrastructure.db.database import init_db
+        await init_db(settings.database_url)
+        yield
+
     app = FastAPI(
         title=settings.app_name,
         version=__version__,
         description="Satış temsilcileri için şirket analizi üreten AI Sales Copilot backend'i.",
+        lifespan=lifespan,
     )
 
     # Bu uygulama örneğine özgü ayarları DI'a bağla: route'lar `Depends(get_settings)`
@@ -58,7 +68,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     # --- Route'lar ---
     app.include_router(health.router)
-    app.include_router(analyze.router)
+    app.include_router(auth_routes.router)  # /auth/register, /auth/login — token gerektirmez
+    app.include_router(
+        analyze.router,
+        dependencies=[Depends(get_current_user)],  # /analyze, /email — JWT zorunlu
+    )
 
     logger.info("Uygulama oluşturuldu (ortam=%s, sürüm=%s)", settings.environment, __version__)
     return app

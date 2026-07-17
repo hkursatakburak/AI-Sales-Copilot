@@ -13,6 +13,7 @@ from __future__ import annotations
 import logging
 from functools import lru_cache
 
+from app.application.caching_analysis_service import CachingAnalysisService
 from app.application.company_insight_analyzer import LLMCompanyInsightAnalyzer
 from app.application.llm_analysis_service import LLMAnalysisService
 from app.application.llm_outreach_writer import LLMOutreachWriter
@@ -104,4 +105,15 @@ def get_analysis_service() -> AnalysisService:
         RuleBasedScoringEngine(),
         outreach_writer,
         robots_checker=robots_checker,
+    )
+
+
+@lru_cache
+def get_cached_analysis_service() -> AnalysisService:
+    """TTL önbellekli AnalysisService — yalnızca /analyze için kullanılır."""
+    settings = get_settings()
+    return CachingAnalysisService(
+        get_analysis_service(),
+        ttl=settings.cache_ttl_seconds,
+        maxsize=settings.cache_maxsize,
     )

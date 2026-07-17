@@ -106,6 +106,24 @@ class Settings(BaseSettings):
     llm_email_max_tokens: int = 700
     llm_pitch_max_tokens: int = 700
 
+    # --- Veritabanı ---
+    database_url: str = Field(
+        default="sqlite+aiosqlite:///./data/copilot.db",
+        validation_alias=AliasChoices("DATABASE_URL", "COPILOT_DATABASE_URL"),
+    )
+
+    # --- JWT ---
+    jwt_secret: str = Field(
+        default="change-me-in-production",
+        validation_alias=AliasChoices("JWT_SECRET", "COPILOT_JWT_SECRET"),
+    )
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 10080  # 7 gün
+
+    # --- Önbellek ---
+    cache_ttl_seconds: int = 600   # 10 dakika
+    cache_maxsize: int = 100
+
     # --- Satıcı profili (Sprint 4) ---
     # Soğuk e-posta/pitch'in "ne sattığımızı" bilmesi için. Kendi ürününüze göre
     # COPILOT_SELLER_* ile değiştirin.

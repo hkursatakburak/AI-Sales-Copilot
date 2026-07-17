@@ -1,14 +1,28 @@
-// AI Sales Copilot — popup mantığı (Sprint 1).
+// AI Sales Copilot — popup mantığı.
 //
-// Akış: panel açılır -> aktif sekmenin URL'si okunur -> kullanıcı butona basar
-// -> backend'in /analyze endpoint'ine POST atılır -> sonuç panelde gösterilir.
-//
-// Sorumluluklar küçük fonksiyonlara bölündü (okunabilirlik + test edilebilirlik).
+// Akış:
+//   1. Panel açılır → chrome.storage.local'dan JWT token kontrol edilir.
+//   2. Token yoksa → giriş ekranı gösterilir.
+//   3. Giriş yapılınca → token kaydedilir, ana görünüme geçilir.
+//   4. Analiz/e-posta istekleri → Authorization: Bearer <token> başlığıyla atılır.
+//   5. 401 gelirse → token temizlenir, giriş ekranına dönülür.
 
 "use strict";
 
 // --- DOM referansları ---
 const els = {
+  // Giriş ekranı
+  loginView: document.getElementById("login-view"),
+  loginEmail: document.getElementById("login-email"),
+  loginPassword: document.getElementById("login-password"),
+  loginBtn: document.getElementById("login-btn"),
+  loginError: document.getElementById("login-error"),
+
+  // Ana görünüm
+  mainView: document.getElementById("main-view"),
+  logoutBtn: document.getElementById("logout-btn"),
+
+  // Mevcut alanlar
   url: document.getElementById("current-url"),
   analyzeBtn: document.getElementById("analyze-btn"),
   loading: document.getElementById("loading"),
@@ -32,14 +46,11 @@ const els = {
 };
 
 let activeUrl = null;
+let jwtToken = null;
 
-// --- Yardımcılar ---
-function show(el) {
-  el.classList.remove("hidden");
-}
-function hide(el) {
-  el.classList.add("hidden");
-}
+// --- Genel yardımcılar ---
+function show(el) { el.classList.remove("hidden"); }
+function hide(el) { el.classList.add("hidden"); }
 
 function setLoading(isLoading) {
   els.analyzeBtn.disabled = isLoading;
@@ -56,15 +67,61 @@ function clearFeedback() {
   hide(els.result);
 }
 
-// Aktif sekmenin URL'sini alır. activeTab izni, kullanıcı eklentiyi
-// çalıştırdığında bu erişimi geçici olarak verir.
-// Test ve demo amacıyla URL parametresi (?url=...) desteği eklendi.
+// --- Görünüm geçişleri ---
+function showLoginView() {
+  hide(els.mainView);
+  hide(els.logoutBtn);
+  hide(els.url);
+  show(els.loginView);
+}
+
+async function showMainView() {
+  hide(els.loginView);
+  show(els.mainView);
+  show(els.logoutBtn);
+  show(els.url);
+
+  activeUrl = await getActiveTabUrl();
+  els.url.textContent = activeUrl ?? "Adres okunamadı";
+}
+
+// --- Giriş yardımcıları ---
+function showLoginError(message) {
+  els.loginError.textContent = message;
+  show(els.loginError);
+}
+
+function clearLoginError() {
+  hide(els.loginError);
+}
+
+async function saveToken(token) {
+  jwtToken = token;
+  if (typeof chrome !== "undefined" && chrome.storage) {
+    await chrome.storage.local.set({ jwt_token: token });
+  }
+}
+
+async function clearToken() {
+  jwtToken = null;
+  if (typeof chrome !== "undefined" && chrome.storage) {
+    await chrome.storage.local.remove("jwt_token");
+  }
+}
+
+async function loadStoredToken() {
+  if (typeof chrome !== "undefined" && chrome.storage) {
+    const result = await chrome.storage.local.get("jwt_token");
+    return result.jwt_token ?? null;
+  }
+  return null;
+}
+
+// --- Sekme URL'si ---
 async function getActiveTabUrl() {
   const urlParams = new URLSearchParams(window.location.search);
   const paramUrl = urlParams.get("url");
-  if (paramUrl) {
-    return paramUrl;
-  }
+  if (paramUrl) return paramUrl;
   if (typeof chrome !== "undefined" && chrome.tabs && chrome.tabs.query) {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     return tab?.url ?? null;
@@ -72,21 +129,38 @@ async function getActiveTabUrl() {
   return null;
 }
 
-// Backend'e analiz isteği atar. Hata durumunda anlamlı bir Error fırlatır.
+// --- Kimlik doğrulamalı fetch yardımcısı ---
+// 401 gelirse token temizler ve giriş ekranına döner; true döndürür (çağıranın dur).
+async function authFetch(url, options = {}) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...(jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {}),
+    ...(options.headers ?? {}),
+  };
+  const response = await fetch(url, { ...options, headers });
+
+  if (response.status === 401) {
+    await clearToken();
+    showLoginView();
+    return null;
+  }
+  return response;
+}
+
+// --- Backend iletişimi ---
 async function requestAnalysis(url) {
   const endpoint = CONFIG.BACKEND_URL + CONFIG.ANALYZE_ENDPOINT;
   let response;
   try {
-    response = await fetch(endpoint, {
+    response = await authFetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
     });
-  } catch (networkErr) {
-    throw new Error(
-      "Backend'e ulaşılamadı. Sunucu çalışıyor mu? (" + CONFIG.BACKEND_URL + ")"
-    );
+  } catch {
+    throw new Error("Backend'e ulaşılamadı. Sunucu çalışıyor mu? (" + CONFIG.BACKEND_URL + ")");
   }
+
+  if (response === null) return null; // 401 → giriş ekranına döndü
 
   const data = await response.json().catch(() => null);
   if (!response.ok) {
@@ -99,7 +173,7 @@ async function requestAnalysis(url) {
 // --- Render ---
 function renderScore(leadScore) {
   els.leadScore.textContent = leadScore.value;
-  els.leadScore.className = "score-badge " + leadScore.tier; // hot|warm|cold
+  els.leadScore.className = "score-badge " + leadScore.tier;
   els.scoreReasons.innerHTML = "";
   for (const reason of leadScore.reasons) {
     const li = document.createElement("li");
@@ -125,17 +199,14 @@ function renderScraped(scraped) {
     els.contentPreview.textContent = "";
     return;
   }
-  els.scrapeBadge.textContent = scraped.renderer; // static | dynamic
+  els.scrapeBadge.textContent = scraped.renderer;
   els.scrapeBadge.className = "renderer-badge " + scraped.renderer;
   els.scrapeMeta.textContent = `${scraped.word_count} kelime çekildi`;
   els.contentPreview.textContent = scraped.content_preview || "";
 }
 
 function renderSignals(signals) {
-  if (!signals) {
-    els.signalsCard.classList.add("hidden");
-    return;
-  }
+  if (!signals) { els.signalsCard.classList.add("hidden"); return; }
   els.signalsCard.classList.remove("hidden");
   const chips = [];
   if (signals.sector) chips.push(`Sektör: ${signals.sector}`);
@@ -146,10 +217,7 @@ function renderSignals(signals) {
   for (const t of signals.technologies || []) chips.push(t);
 
   els.signals.innerHTML = "";
-  if (chips.length === 0) {
-    els.signals.textContent = "Belirgin sinyal bulunamadı.";
-    return;
-  }
+  if (chips.length === 0) { els.signals.textContent = "Belirgin sinyal bulunamadı."; return; }
   for (const text of chips) {
     const span = document.createElement("span");
     span.className = "chip";
@@ -163,7 +231,6 @@ function renderResult(data) {
   renderScraped(data.scraped);
 
   const aiOff = Boolean(data.meta?.is_stub);
-  // AI kapalıysa: profesyonel bilgi ekranı göster, AI'ya bağlı kartları gizle.
   els.aiStatus.classList.toggle("hidden", !aiOff);
   for (const card of els.aiCards) card.classList.toggle("hidden", aiOff);
 
@@ -179,18 +246,57 @@ function renderResult(data) {
 }
 
 // --- Olay işleyiciler ---
-async function onAnalyzeClick() {
-  clearFeedback();
+async function onLoginClick() {
+  clearLoginError();
+  const email = els.loginEmail.value.trim();
+  const password = els.loginPassword.value;
 
-  if (!activeUrl) {
-    showError("Aktif sekmenin adresi okunamadı.");
+  if (!email || !password) {
+    showLoginError("E-posta ve şifre alanları boş bırakılamaz.");
     return;
   }
+
+  els.loginBtn.disabled = true;
+  els.loginBtn.textContent = "Giriş yapılıyor…";
+
+  try {
+    const response = await fetch(CONFIG.BACKEND_URL + "/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      showLoginError(data?.detail ?? "E-posta veya şifre hatalı.");
+      return;
+    }
+
+    await saveToken(data.access_token);
+    await showMainView();
+  } catch {
+    showLoginError("Sunucuya ulaşılamadı. Backend çalışıyor mu?");
+  } finally {
+    els.loginBtn.disabled = false;
+    els.loginBtn.textContent = "Giriş Yap";
+  }
+}
+
+async function onLogoutClick() {
+  await clearToken();
+  clearFeedback();
+  showLoginView();
+}
+
+async function onAnalyzeClick() {
+  clearFeedback();
+  if (!activeUrl) { showError("Aktif sekmenin adresi okunamadı."); return; }
 
   setLoading(true);
   try {
     const data = await requestAnalysis(activeUrl);
-    renderResult(data);
+    if (data !== null) renderResult(data);
   } catch (err) {
     showError(err.message);
   } finally {
@@ -205,16 +311,13 @@ async function onRegenerateClick() {
   btn.disabled = true;
   btn.textContent = "Üretiliyor…";
   try {
-    const endpoint = CONFIG.BACKEND_URL + CONFIG.EMAIL_ENDPOINT;
-    const response = await fetch(endpoint, {
+    const response = await authFetch(CONFIG.BACKEND_URL + CONFIG.EMAIL_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url: activeUrl }),
     });
+    if (response === null) return; // 401 → login
     const data = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(data?.error?.message ?? "Yeniden üretilemedi.");
-    }
+    if (!response.ok) throw new Error(data?.error?.message ?? "Yeniden üretilemedi.");
     els.coldEmail.textContent = data.cold_email;
     els.pitch.textContent = data.pitch;
   } catch (err) {
@@ -240,14 +343,26 @@ async function onCopyClick(event) {
 
 // --- Başlangıç ---
 async function init() {
+  els.loginBtn.addEventListener("click", onLoginClick);
+  els.logoutBtn.addEventListener("click", onLogoutClick);
   els.analyzeBtn.addEventListener("click", onAnalyzeClick);
   els.regenerateBtn.addEventListener("click", onRegenerateClick);
   for (const btn of document.querySelectorAll(".copy-btn[data-copy-target]")) {
     btn.addEventListener("click", onCopyClick);
   }
 
-  activeUrl = await getActiveTabUrl();
-  els.url.textContent = activeUrl ?? "Adres okunamadı";
+  // Enter tuşuyla da giriş yapılabilsin
+  els.loginPassword.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") onLoginClick();
+  });
+
+  const stored = await loadStoredToken();
+  if (stored) {
+    jwtToken = stored;
+    await showMainView();
+  } else {
+    showLoginView();
+  }
 }
 
 document.addEventListener("DOMContentLoaded", init);

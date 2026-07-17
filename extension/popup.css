@@ -289,3 +289,73 @@ ul {
 .copy-btn:hover {
   background: var(--card-bg);
 }
+
+/* ── Giriş ekranı ── */
+#login-view {
+  padding: 8px 0 16px;
+}
+
+.login-subtitle {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.field input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--fg);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.field input:focus {
+  border-color: var(--primary);
+}
+
+/* ── Çıkış düğmesi ── */
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.header h1 {
+  flex: 1;
+}
+
+.logout-btn {
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: var(--error-bg);
+  color: var(--error-fg);
+  border-color: var(--error-fg);
+}

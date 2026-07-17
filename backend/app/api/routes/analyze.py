@@ -12,7 +12,7 @@ import logging
 
 from fastapi import APIRouter, Depends
 
-from app.api.dependencies import get_analysis_service
+from app.api.dependencies import get_analysis_service, get_cached_analysis_service
 from app.api.schemas import AnalyzeRequest, AnalyzeResponse, EmailResponse
 from app.domain.interfaces import AnalysisService
 
@@ -24,7 +24,7 @@ router = APIRouter(tags=["analysis"])
 @router.post("/analyze", response_model=AnalyzeResponse)
 async def analyze(
     payload: AnalyzeRequest,
-    service: AnalysisService = Depends(get_analysis_service),
+    service: AnalysisService = Depends(get_cached_analysis_service),
 ) -> AnalyzeResponse:
     url = str(payload.url)
     logger.info("Analiz isteği alındı: %s", url)
