@@ -76,7 +76,7 @@
   | Sprint | Durum | Ana Hedef | Kapsam | Tahmini Puan |
   | :---: | :---: | :--- | :--- | :---: |
   | **Sprint 1** | Tamamlandı | Çalışan MVP | Repository kurulumu, Temiz Mimari (Clean Architecture) tabanlı backend yapısı, FastAPI ile `/analyze` ve `/email` uç noktaları, BeautifulSoup ve Playwright entegrasyonu ile web kazıma çözümleri, Manifest V3 uyumlu Chrome eklentisi, Gemini entegrasyonu (özet, acı noktası ve sinyal tespiti), kural tabanlı potansiyel müşteri puanlaması (lead scoring) ve temel soğuk e-posta üretimi ile uçtan uca çalışan demo. | 100 |
-  | **Sprint 2** | Planlanan (Gerçekleşmedi) | Zenginleştirme ve Sağlamlık | Soğuk e-posta ve pitch kalitesinin artırılması (few-shot öğrenme ve doğal dil tonu), çoklu dil modeli desteği (Claude ve sağlayıcıdan bağımsız fabrika yapısı), web kazıma kararlılığı (SSRF koruması, robots.txt kurallarına uyum, yeniden deneme mekanizmaları, istek sınırlama ve kullanıcı dostu hata mesajları), kullanıcı deneyimi (UX) geliştirmeleri ve birim testleri. | 90 |
+  | **Sprint 2** | ✅ Tamamlandı | Zenginleştirme ve Sağlamlık | Soğuk e-posta ve pitch kalitesinin artırılması (few-shot öğrenme ve doğal dil tonu), çoklu dil modeli desteği (Claude ve sağlayıcıdan bağımsız fabrika yapısı), web kazıma kararlılığı (SSRF koruması, robots.txt kurallarına uyum, yeniden deneme mekanizmaları, istek sınırlama ve kullanıcı dostu hata mesajları), kullanıcı deneyimi (UX) geliştirmeleri ve birim testleri. | 90 |
   | **Sprint 3** | Planlanan (Gerçekleşmedi) | İleri Seviye Özellikler | RAG (Retrieval-Augmented Generation) ve vektör veri tabanı entegrasyonu, Apollo.io entegrasyonu ile veri zenginleştirme, çok sayfalı web kazıma, geçmişteki başarılı e-postalardan öğrenme yeteneği, önbellekleme mekanizmaları ve puanlama metriklerinin genişletilmesi. | 60 |
   | **Sprint 4** | Planlanan (Gerçekleşmedi) | Ürünleştirme ve Sunum | Bulut sunuculara dağıtım (deployment), basit kimlik doğrulama (auth) yapısı, loglama ve izleme sistemleri, performans ile güvenlik incelemeleri, kullanıcı testleri, demo videosunun hazırlanması ve jüri sunumu (demo mimarisi ile canlı ortam mimarisinin karşılaştırılması). | 50 |
 
@@ -86,6 +86,53 @@
 
 - **Sprint Retrospective:** 
   - (Sprint bitiminde 5 Temmuz'da doldurulacaktır: Hangi konularda hızlanmamız gerektiği ve sonraki sprint'in rotası tartışıldı.)
+
+---
+
+# Sprint 2
+
+- **Sprint Notları**: Sprint 2'nin temel hedefi, Sprint 1'de kurulan MVP altyapısını güçlendirmek ve ürün kalitesini artırmaktı. Planlanan tüm görevler tamamlanmış; bunların yanı sıra Sprint 3 ve Sprint 4 kapsamındaki bazı özellikler (MultiPageCrawler, Auth altyapısı, Docker) de bu sprint içinde erken teslim edilmiştir.
+
+- **Sprint içinde tamamlanması tahmin edilen puan**: 90 Puan
+
+- **Puan tamamlama mantığı**: Proje boyunca tamamlanması gereken toplam 300 puanlık backlog bulunmaktadır. Sprint 2 için 90 puan hedeflenmiş ve bu hedef eksiksiz gerçekleştirilmiştir. Ekip, erken teslimlerle Sprint 3 ve Sprint 4 görevlerini de kısmen tamamlamıştır.
+
+- **Backlog düzeni ve Story seçimleri**: Sprint 2 backlog'u dört ana eksen etrafında şekillenmiştir: (1) Soğuk e-posta ve pitch kalitesinin artırılması (few-shot prompt ve doğal dil tonu), (2) Çoklu LLM desteği — Claude ve Gemini için sağlayıcıdan bağımsız fabrika yapısı (`factory.py`), (3) Web kazıma kararlılığı — SSRF koruması (`url_guard.py`), robots.txt uyumu (`robots.py`), istek sınırlama (`rate_limiter.py`) ve kullanıcı dostu hata mesajları, (4) Kapsamlı birim test altyapısı.
+
+- **Daily Scrum**: Daily Scrum toplantılarının WhatsApp üzerinden yapılmasına devam edilmiştir. Sprint 2 Daily Scrum toplantılarımız Imgur'da toplanmıştır: [Sprint 2 - Daily Scrum Chats](#)
+
+- **Sprint board update**: Sprint board screenshot:
+![Backlog 2](readme_images/trello_sprint2.png)
+
+- **Ürünün Durumu**:
+
+  Sprint 2 kapsamında tamamlanan görevler aşağıda listelenmiştir:
+
+  | Görev | Açıklama | Durum | Puan |
+  | :--- | :--- | :---: | :---: |
+  | Çoklu LLM Fabrika Yapısı | Claude ve Gemini sağlayıcıları için provider-agnostic fabrika (OCP uyumlu `factory.py`) | ✅ Tamamlandı | 20 |
+  | SSRF Koruması | URL doğrulama ve iç ağ / bulut metadata adreslerini engelleme (`url_guard.py`) | ✅ Tamamlandı | 10 |
+  | robots.txt Uyumu | Hedef sitenin robots.txt kurallarına uygun scraping (`robots.py`) | ✅ Tamamlandı | 10 |
+  | İstek Sınırlama (Rate Limiter) | Aşırı istek önleme ve yeniden deneme mekanizması (`rate_limiter.py`) | ✅ Tamamlandı | 10 |
+  | Önbellekleme Katmanı | Tekrarlayan analizlerde cache kullanımı (`caching_analysis_service.py`) | ✅ Tamamlandı | 10 |
+  | Birim Testleri | `url_guard`, `rate_limiter`, `hybrid_scraper`, `llm_factory`, `llm_outreach_writer`, `domain_models` ve daha fazlası | ✅ Tamamlandı | 20 |
+  | Hata Mesajları | Kullanıcıya sade, anlaşılır scraping hata mesajları (`exceptions.py`) | ✅ Tamamlandı | 10 |
+  | **Erken Teslimat:** Auth Altyapısı | JWT tabanlı kimlik doğrulama uç noktaları ve veritabanı modeli (Sprint 4 görevi) | ✅ Erken Teslim | — |
+  | **Erken Teslimat:** Docker | `docker-compose.yml` ile konteynerleştirme (Sprint 4 görevi) | ✅ Erken Teslim | — |
+  | **Erken Teslimat:** MultiPageCrawler | Çok sayfalı web kazıma altyapısı (Sprint 3 görevi) | ✅ Erken Teslim | — |
+
+- **Sprint Review**:
+  - Sprint 2 kapsamındaki tüm planlanan görevler (90 puan) başarıyla tamamlandı.
+  - Çoklu LLM desteği hayata geçirildi; sistem artık hem Gemini hem de Claude API'yi desteklemekte, sağlayıcı değişikliği yalnızca `.env` konfigürasyonuyla yapılabilmektedir.
+  - SSRF koruması, robots.txt uyumu ve rate limiter ile web kazıma katmanı production-ready hale getirildi.
+  - Kapsamlı birim test altyapısı kuruldu; tüm kritik bileşenler test kapsamına alındı.
+  - Sprint 3 ve Sprint 4 hedeflerinden bazıları erken teslim edildi (MultiPageCrawler, Auth, Docker) — bu durum ilerleyen sprintlerin yükünü önemli ölçüde hafifletti.
+  - Sprint Review katılımcıları: Hamza Kürşat Akburak, Elifgül Topcu, Meryem Durdağı, Ahmet Bilal Özgün.
+
+- **Sprint Retrospective**:
+  - **İyi gidenler**: Ekip hızı beklentilerin üzerinde gerçekleşti. Clean Architecture sayesinde yeni LLM sağlayıcısı eklemek minimum kod değişikliğiyle mümkün oldu. Birim testleri, scraping ve LLM katmanında güven sağladı.
+  - **İyileştirme alanları**: Sprint board ekran görüntüsü daha düzenli güncellenmelidir. Daily Scrum loglarının sistematik biçimde arşivlenmesi hedeflenmektedir.
+  - **Kararlar**: Sprint 3'te RAG + vektör veritabanı entegrasyonu ve Apollo.io veri zenginleştirmesi önceliklendirilecektir. Erken teslim edilen MultiPageCrawler, Sprint 3'te bu pipeline'a doğrudan entegre edilecek.
 
 ---
 
